@@ -8,7 +8,7 @@
   export let year = "";
   export let studentId = "";
   export let studentName = "";
-  import { toJpeg } from "html-to-image";
+  import { toPng } from "html-to-image";
 
   const days = ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."];
   const englishDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -16,7 +16,7 @@
   let mode = "new";
 
   const download = async () => {
-    const dataUrl = await toJpeg(table);
+    const dataUrl = await toPng(table);
     const link = document.createElement("a");
     link.download = "image.png";
     link.href = dataUrl;
