@@ -8,18 +8,18 @@
   export let year = "";
   export let studentId = "";
   export let studentName = "";
-  import html2canvas from "html2canvas";
-  console.log(schedule);
+  import { toJpeg } from "html-to-image";
 
   const days = ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."];
   const englishDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   let table = undefined;
   let mode = "new";
+
   const download = async () => {
-    const canvas = await html2canvas(table);
+    const dataUrl = await toJpeg(table);
     const link = document.createElement("a");
     link.download = "image.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = dataUrl;
     link.click();
   };
 
@@ -65,7 +65,6 @@
     return theme;
   };
   let theme = makeTheme();
-  console.log(theme);
 
   const getTheme = (subjectId) => {
     const filtered = theme.filter((item) => item.subjectId === subjectId);
@@ -121,13 +120,16 @@
 
 {#if mode == "new"}
   <div bind:this={table} class="w-full p-5 flex flex-col justify-center shadow">
-    <div class="w-full p-4 text-white rounded-t-lg" style="background-color: {headerColor};">
+    <div
+      class="w-full p-4 text-white rounded-t-lg"
+      style="background-color: {headerColor};"
+    >
       <p class="text-center">{faculty}</p>
       <p class="text-center">{department} {major}</p>
       <p class="text-center">{semester} {year}</p>
       <p class="text-center">{studentId} {studentName}</p>
     </div>
-    <table class="shadow w-full h-screen rounded-b-lg">
+    <table class="shadow w-full h-screen rounded-b-lg bg-white">
       <thead>
         <tr>
           <th class="p-1 font-light" />
