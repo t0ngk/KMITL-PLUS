@@ -166,8 +166,8 @@
                     }`}
                   >
                     <p class="absolute top-1 text-xs">
-                      {timeSlot.info.building}
-                      {timeSlot.info.room}
+                      {timeSlot.info.building ? timeSlot.info.building : ''}
+                      {timeSlot.info.room ? timeSlot.info.room : ''}
                     </p>
                     <p class="px-1 h-full flex justify-center items-center">
                       {timeSlot.subjectName}
