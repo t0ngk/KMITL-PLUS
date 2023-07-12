@@ -76,7 +76,8 @@
   };
 
   const createTimeSlot = (day) => {
-    const filtered = schedule.filter((item) => item.day === day);
+    const dayIndex = days.findIndex((item) => item === day);
+    const filtered = schedule.filter((item) => item.day === day || item.day === englishDays[dayIndex]);
     const timeSlots = [];
     for (let index = 0; index < 12 * 4; index++) {
       timeSlots.push(undefined);

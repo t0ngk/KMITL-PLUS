@@ -41,7 +41,7 @@ export function scrapeTable(studyTable) {
     const subjectDescription = item.childNodes[35].textContent;
     const subjectPeriod = item.childNodes[25];
     subjectPeriod.childNodes.forEach((item, index) => {
-      if (item.textContent.includes("ท")) {
+      if (item.textContent.includes("ท") || item.textContent.includes("L")) {
         const splitData = item.textContent.split(" ");
         const time = splitData[1].split("-");
         const period = {
@@ -50,7 +50,7 @@ export function scrapeTable(studyTable) {
           end: time[1],
         };
         subjectLecture.period.push(period);
-      } else if (item.textContent.includes("ป")) {
+      } else if (item.textContent.includes("ป") || item.textContent.includes("P")) {
         const splitData = item.textContent.split(" ");
         const time = splitData[1].split("-");
         const period = {
@@ -90,13 +90,14 @@ export function scrapeTable(studyTable) {
     };
     scrapedData.push(data);
   });
-
+  console.log(scrapedData)
   return scrapedData;
 }
 
 export function flattenStudyTable(data) {
   let flattenData = [];
   data.forEach((item, index) => {
+    console.log(item)
     const {
       subjectId,
       subjectName,
@@ -168,6 +169,13 @@ export function sortByDay(data) {
     "ศ.": 4,
     "ส.": 5,
     "อา.": 6,
+    "Sun": 0,
+    "Mon": 1,
+    "Tue": 2,
+    "Wed": 3,
+    "Thu": 4,
+    "Fri": 5,
+    "Sat": 6,
   };
 
   const sortedData = data.sort((a, b) => {
