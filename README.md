@@ -17,7 +17,7 @@ Open Souce Project สำหรับ Chrome Extention ซึ่ง Extention �
 ## Feature
 
 1. [x] Redesign ตารางเรียน
-2. [ ] Redesign ตารางสอบ
+2. [x] Redesign ตารางสอบ
 3. [ ] Redesign หน้าแสดงเกรด
 
 ## Stack
