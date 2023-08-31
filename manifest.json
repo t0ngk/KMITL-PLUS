@@ -1,7 +1,7 @@
 {
   "name": "KMITL +",
   "description": "KMITL + is a chrome extension that add more features to KMITL's website.",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "manifest_version": 3,
   "icons": {
     "192": "public/icon-192x192.png",
@@ -13,6 +13,10 @@
     {
       "js": ["src/content/studyTable.js"],
       "matches": ["https://www.reg.kmitl.ac.th/u_student/report_studytable_show.php"]
+    },
+    {
+      "js": ["src/content/examSchedule.js"],
+      "matches": ["https://www.reg.kmitl.ac.th/u_student/report_examtable_show.php"]
     }
   ]
 }
