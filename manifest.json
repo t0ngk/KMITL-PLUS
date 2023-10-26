@@ -12,11 +12,11 @@
   "content_scripts": [
     {
       "js": ["src/content/studyTable.js"],
-      "matches": ["https://www.reg.kmitl.ac.th/u_student/report_studytable_show.php"]
+      "matches": ["https://*.reg.kmitl.ac.th/u_student/report_studytable_show.php"]
     },
     {
       "js": ["src/content/examSchedule.js"],
-      "matches": ["https://www.reg.kmitl.ac.th/u_student/report_examtable_show.php"]
+      "matches": ["https://*.reg.kmitl.ac.th/u_student/report_examtable_show.php"]
     }
   ]
 }
