@@ -4,6 +4,7 @@ import "../assets/styles.css";
 let start = 17;
 
 let getSubject = [];
+let oldDesign = document.body.innerHTML;
 
 const monthTxt2Num = {
   "ม.ค.": "1",
@@ -69,7 +70,7 @@ while (true) {
     .map((e) => e.split(":"));
   let startTime;
   let endTime;
-  if (timeScrap.length == 2) {    
+  if (timeScrap.length == 2) {
     startTime = new Date(date).setHours(
       parseInt(timeScrap[0][0]),
       parseInt(timeScrap[0][1])
@@ -147,11 +148,11 @@ document.body.innerHTML = "";
 const oldStyle = document.head.querySelector("link[type='text/css']");
 document.head.removeChild(oldStyle);
 
-
 new ExamSchedule({
   target: document.body,
   props: {
     schedule: groupByDate,
     data,
+    oldDesign,
   },
 });
