@@ -96,9 +96,18 @@ while (true) {
   start += 2;
 }
 
-getSubject = getSubject.sort(
-  (a, b) => a.startTime?.getTime() - b.startTime?.getTime()
-);
+getSubject = getSubject.sort((a, b) => {
+  if (a.startTime && b.startTime) {
+    return a.startTime?.getTime() - b.startTime?.getTime();
+  } else {
+    if (a.startTime) {
+      return -1;
+    } else if (b.startTime) {
+      return 1;
+    }
+  }
+  return a.startTime?.getTime() - b.startTime?.getTime();
+});
 
 const groupByDate = [];
 getSubject.forEach((e) => {
