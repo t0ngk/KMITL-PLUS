@@ -15,5 +15,5 @@ export const normalizeDay = (day: string) => {
 		'ส.': engDay[6]
 	};
 
-	return dayMapping[day] || 'Unknown day';
+	return dayMapping[day] || day;
 };
