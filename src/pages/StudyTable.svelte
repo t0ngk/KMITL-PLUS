@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { StudyTable } from '@/libs/types/studyTable';
+	import type { StudyTable } from '@/libs/types/StudyTable';
 
 	export let data: StudyTable;
 	export let isEng: boolean;

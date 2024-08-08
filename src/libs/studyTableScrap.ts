@@ -1,4 +1,4 @@
-import { type StudyTable, type StudyTableSubject } from './types/studyTable';
+import { type StudyTable, type StudyTableSubject } from './types/StudyTable';
 import { engDay, getClearedText, normalizeDay, getStudentInfo } from './utils/scrapHelper';
 
 export const scrapData = (studyTable: HTMLTableElement) => {
