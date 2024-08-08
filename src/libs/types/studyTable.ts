@@ -1,11 +1,6 @@
-export type StudyTable = {
-	faculty: string;
-	department: string;
-	major: string;
-	semester: string;
-	academicYear: string;
-	studentId: string;
-	studentName: string;
+import type { StudentInfo } from './StudentInfo';
+
+export type StudyTable = StudentInfo & {
 	studyTable: StudyTableSubject[];
 };
 
