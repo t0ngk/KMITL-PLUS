@@ -1,5 +1,5 @@
 import { type StudyTable, type StudyTableSubject } from './types/studyTable';
-import { engDay, getClearedText, normalizeDay } from './utils/scrapHelper';
+import { engDay, getClearedText, normalizeDay, getStudentInfo } from './utils/scrapHelper';
 
 export const scrapData = (studyTable: HTMLTableElement) => {
 	const rows = studyTable.querySelectorAll('tr');
@@ -8,18 +8,6 @@ export const scrapData = (studyTable: HTMLTableElement) => {
 		studyTable: sortStudyTable(getStudyTable(rows))
 	};
 	return info;
-};
-
-const getStudentInfo = (rows: NodeListOf<HTMLTableRowElement>) => {
-	return {
-		faculty: getClearedText(rows[3].textContent),
-		department: getClearedText(rows[5].childNodes[1].childNodes[1].textContent),
-		major: getClearedText(rows[5].childNodes[1].childNodes[3].textContent),
-		semester: getClearedText(rows[7].childNodes[1].childNodes[1].textContent),
-		academicYear: getClearedText(rows[7].childNodes[1].childNodes[3].textContent),
-		studentId: getClearedText(rows[9].childNodes[1].childNodes[1].textContent),
-		studentName: getClearedText(rows[9].childNodes[1].childNodes[3].textContent)
-	};
 };
 
 const getStudyTable = (rows: NodeListOf<HTMLTableRowElement>) => {
