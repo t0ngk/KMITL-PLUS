@@ -1,6 +1,11 @@
 import type { StudentInfo } from './StudentInfo';
 
 export type examSchedule = StudentInfo & {
+	subjects: examScheduleGroupByDate[];
+};
+
+export type examScheduleGroupByDate = {
+	date: string | undefined;
 	subjects: examScheduleSubject[];
 };
 
@@ -10,14 +15,13 @@ export type examScheduleSubject = {
 	section: string;
 	credit: string;
 	type: string;
-	date: examScheduleDate | null;
 	time: examScheduleTime | null;
 	seat: examScheduleSeat | null;
 };
 
 export type examScheduleTime = {
-	startTime: string;
-	endTime: string;
+	startTime: Date;
+	endTime: Date;
 };
 
 export type examScheduleDate = {
