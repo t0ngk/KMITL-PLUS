@@ -18,6 +18,10 @@ export default defineManifest(async (env) => ({
 		{
 			js: ['/src/content/studyTable'],
 			matches: ['https://*.reg.kmitl.ac.th/u_student/report_studytable_show.php']
+		},
+		{
+			js: ['src/content/examSchedule'],
+			matches: ['https://*.reg.kmitl.ac.th/u_student/report_examtable_show.php']
 		}
 	]
 }));
