@@ -30,18 +30,18 @@ const getStudyTable = (rows: NodeListOf<HTMLTableRowElement>) => {
 			studyTable.push({
 				...data,
 				type: 'lecture',
-				classroom: getClearedText(subjectData[14].childNodes[0].textContent),
-				building: getClearedText(subjectData[16].childNodes[0].textContent),
-				time: dataAndTime[0].textContent ? getDateTime(dataAndTime[0].textContent) : null
+				classroom: getClearedText(subjectData[14].childNodes[0]?.textContent),
+				building: getClearedText(subjectData[16].childNodes[0]?.textContent),
+				time: dataAndTime[0]?.textContent ? getDateTime(dataAndTime[0]?.textContent) : null
 			});
 		}
 		if (practicalSection != '-') {
 			studyTable.push({
 				...data,
 				type: 'practical',
-				classroom: getClearedText(subjectData[14].childNodes[2].textContent),
-				building: getClearedText(subjectData[16].childNodes[2].textContent),
-				time: dataAndTime[2].textContent ? getDateTime(dataAndTime[2].textContent) : null
+				classroom: getClearedText(subjectData[14].childNodes[2]?.textContent),
+				building: getClearedText(subjectData[16].childNodes[2]?.textContent),
+				time: dataAndTime[2]?.textContent ? getDateTime(dataAndTime[2]?.textContent) : null
 			});
 		}
 	}
