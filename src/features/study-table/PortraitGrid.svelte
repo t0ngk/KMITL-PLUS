@@ -5,15 +5,30 @@
   // กริดสำหรับภาพแนวตั้ง : วันเป็นคอลัมน์ เวลาไล่ลง — แกนสลับกับ Grid.svelte
   // แต่ใช้ placement.js ตัวเดียวกันตัดสินว่าวิชาไหนอยู่ช่องไหน
   //
-  // ที่นี่ไม่ใช่ Grid.svelte ที่หมุน 90 องศา : เกณฑ์ว่าอะไรใส่ลงได้ต่างกันสิ้นเชิง
-  // แนวนอน 1 ชั่วโมง = ความกว้าง ~116px ใส่ได้ 2 บรรทัด
-  // แนวตั้ง  1 ชั่วโมง = ความสูง ~87px แต่กว้าง ~120px ใส่ได้ 4 บรรทัด
-  // และคาบยาวยิ่งมีที่มาก — จำนวนบรรทัดจึงคิดจากความสูงจริงของบล็อก ไม่ล็อกไว้ที่ 2
+  // ข้อความในบล็อก **หมุนเป็นแนวตั้ง** ส่วนกริด ชื่อวัน และแกนเวลายังนอนเหมือนเดิม
+  //
+  // เหตุผลเป็นตัวเลข : ผืน 540px หักคอลัมน์เวลา 36px เหลือ 7 วัน วันละ 67px
+  // ในบล็อกเหลือ 65px ซึ่งที่ 13px ใส่ได้ **6 ตัวอักษรต่อบรรทัด** —
+  // "SOFTWARE VERIFICATION AND VALIDATION" แตกเป็น SOFTWA/RE/VERIFICA/TION/...
+  // ลดฟอนต์เป็น 11px ได้ 7 ตัว แทบไม่ต่าง **แกนคือข้อจำกัด ไม่ใช่ขนาดฟอนต์**
+  //
+  // หมุนแล้ว : ความยาวบรรทัด = ความสูงบล็อก (คาบ 3 ชั่วโมง = 162px ~23 ตัวอักษร)
+  // จำนวนบรรทัด = ความกว้างบล็อก / line-height ~4 บรรทัด
+  //
+  // ใน writing-mode: vertical-rl แกน inline คือแนวตั้ง flex-direction: column
+  // จึงเรียงของ "ข้าง ๆ กัน" ในแนวนอน — คอลัมน์ชื่อ และคอลัมน์เวลา/ห้อง
+  //
+  // งบบรรทัดที่มีจริง : 65px - padding 8 = 57px
+  // ที่ 13px (line-height 17) ได้ 3 บรรทัด : ชื่อ 2 + เวลา/ห้อง 1 -> ชื่อยาวยังขาด
+  // ที่ 11px (line-height 14) ได้ 4 บรรทัด : ชื่อ 3 + เวลา/ห้อง 1 -> ชื่อส่วนใหญ่ครบ
+  // เลือก 11px ซึ่งอยู่ใน ramp อยู่แล้ว และบนภาพ scale 2 = 22 device px อ่านได้สบาย
+  //
+  // เคยลองให้ชื่อกินที่เหลือแล้วเวลา/ห้องอยู่คอลัมน์ของตัวเอง : meta กินไปสองบรรทัด
+  // เหลือชื่อบรรทัดครึ่ง ชื่อโดนตัดหนักกว่าเดิม (17 จาก 19 บล็อก)
+  const NAME_LINES = 3;
+  const LINE_HEIGHT = 14;
 
-  // hourHeight = ความสูงจริงต่อหนึ่งชั่วโมงในผืนที่จะถ่าย ผู้เรียกคำนวณให้เพราะ
-  // มันขึ้นกับว่าเว้นแถบนาฬิกาไหมและตัดเหลือกี่ชั่วโมง — ใช้คิดว่าใส่ได้กี่บรรทัด
-  // ถ้าเดาค่านี้ ข้อความจะล้นออกนอกบล็อกเวลาชั่วโมงเตี้ยกว่าที่เดา
-  let { schedule, theme, extent, hourHeight } = $props();
+  let { schedule, theme, extent } = $props();
 
   // แถวที่ 1 คือชื่อวัน ช่องเวลาช่องแรกจึงเริ่มที่เส้นกริดที่ 2
   const ROW_OFFSET = 2;
@@ -23,10 +38,6 @@
 
   // 13px x leading-tight (1.25) = 16.25 — ปัดขึ้นกัน off-by-one ที่ทำให้บรรทัด
   // สุดท้ายโดนตัดครึ่ง
-  const LINE_HEIGHT = 17;
-  const BLOCK_PADDING = 14;
-  const MAX_NAME_LINES = 6;
-
   const pad = (value) => String(value).padStart(2, "0");
 
   const hours = $derived(
@@ -39,21 +50,15 @@
   const days = $derived(
     layoutWeek(schedule, theme, extent).map((day) => ({
       ...day,
-      cards: day.cards.map((card) => {
-        const height = (card.slotSpan / SLOTS_PER_HOUR) * hourHeight;
-        // คาบ 1 ชั่วโมงขึ้นไปมีที่พอสำหรับเวลาและห้อง — ต่ำกว่านั้นเหลือแค่ชื่อ
-        const detail = card.slotSpan >= SLOTS_PER_HOUR;
-        const forName = height - BLOCK_PADDING - (detail ? LINE_HEIGHT * 2 : 0);
-        return {
-          ...card,
-          detail,
-          // คาบ 15-30 นาที (สูง ~22-44px) ไม่เหลือที่แม้แต่บรรทัดเดียว
-          nameLines: Math.min(
-            MAX_NAME_LINES,
-            Math.floor(forName / LINE_HEIGHT),
-          ),
-        };
-      }),
+      // เวลา/ห้องต้องมีที่พอทั้งสองแกนถึงจะแสดง
+      //   ความยาวบรรทัด : คาบต้องยาวอย่างน้อย 1 ชั่วโมง
+      //   จำนวนบรรทัด   : คาบที่ซ้อนกันตั้งแต่ 3 ชั้นขึ้นไปได้ lane กว้าง ~21px
+      //                   ซึ่งพอแค่บรรทัดเดียว **ชื่อวิชามาก่อน** ถ้าเหลือที่เดียว
+      // (เจอตอนวัด : บล็อกซ้อน 3 ชั้นเคยได้ meta แล้วชื่อเหลือ 0px)
+      cards: day.cards.map((card) => ({
+        ...card,
+        detail: card.slotSpan >= SLOTS_PER_HOUR && card.laneCount <= 2,
+      })),
     })),
   );
 
@@ -115,27 +120,24 @@
                margin-left: {(card.lane * 100) / card.laneCount}%;"
       >
         <div
-          class="flex h-full w-full flex-col gap-0.5 overflow-hidden rounded-md px-1.5 py-1 text-left"
-          style={`background-color: ${card.colors.tint}; color: ${card.colors.ink};`}
+          class="flex h-full w-full flex-col gap-1 overflow-hidden rounded-md px-1 py-1.5 text-left"
+          style={`writing-mode: vertical-rl; background-color: ${card.colors.tint}; color: ${card.colors.ink};`}
           title={card.label}
         >
-          {#if card.nameLines > 0}
-            <p
-              class="overflow-hidden text-[13px] leading-tight font-medium break-words hyphens-auto"
-              style="display: -webkit-box; -webkit-box-orient: vertical;
-                     -webkit-line-clamp: {card.nameLines};"
-            >
-              {card.item.subjectName}
-            </p>
-          {/if}
+          <!-- หมุนแล้ว width ของ <p> คือ "ความหนาของกองบรรทัด" ไม่ใช่ความกว้างที่ตาเห็น
+               จำกัดชื่อไว้ 2 บรรทัดจึงเหลือที่ให้เวลา/ห้องเสมอ ไม่โดนดันตกขอบ -->
+          <p
+            class="overflow-hidden text-[11px] leading-tight font-medium"
+            style="max-width: {NAME_LINES * LINE_HEIGHT}px;"
+          >
+            {card.item.subjectName}
+          </p>
           {#if card.detail}
-            <p class="tnum text-[11px] leading-tight font-light">
-              {card.item.start}–{card.item.end}
-            </p>
             <p
-              class="mt-auto truncate text-[11px] leading-tight font-light"
-              style={`color: ${card.colors.inkSoft};`}
+              class="tnum shrink-0 overflow-hidden text-[11px] leading-tight font-light"
+              style={`max-width: ${LINE_HEIGHT}px; color: ${card.colors.inkSoft};`}
             >
+              {card.item.start}–{card.item.end} ·
               {[card.item.building, card.item.room].filter(Boolean).join(" ")}
               · {card.item.sec} ({card.item.type})
             </p>

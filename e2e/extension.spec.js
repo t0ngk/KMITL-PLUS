@@ -245,13 +245,7 @@ test("ภาพแนวตั้ง export ได้จาก extension จร�
 
   // แนวตั้ง mount ผืนภาพนอกจอแล้วถ่าย — คนละทางกับแนวนอนที่ถ่ายของบนจอ
   // ต้องพิสูจน์บน bundle จริง ไม่ใช่แค่ใน harness
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  const pending = page.waitForEvent("download", { timeout: 60_000 });
-  await page
-    .getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true })
-    .click();
-  const file = await pending;
+  const file = await downloadAs(page, "แนวตั้ง");
 
   const saved = path.join(
     fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "kmitl-e2e-")),
@@ -268,4 +262,46 @@ test("ภาพแนวตั้ง export ได้จาก extension จร�
       () => document.querySelectorAll('[style*="left: -10000px"]').length,
     ),
   ).toBe(0);
+});
+
+test("ชื่อวิชาในภาพแนวตั้งอ่านได้บน extension จริง", async ({ regPage }) => {
+  const { page } = regPage;
+  await openRegistrar(page, STUDY_TABLE_URL);
+
+  // ดักผืนภาพตอนที่มันมีตัวตนอยู่ แล้วอ่านว่าชื่อวิชาถูกแสดงครบไหม
+  // ขนาดไฟล์บอกได้แค่ว่ามีภาพออกมา ไม่ได้บอกว่าในภาพอ่านออก
+  await page.evaluate(() => {
+    window.__names = null;
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === 1 && node.style?.left === "-10000px") {
+            window.__names = [...node.querySelectorAll("div")]
+              .filter((item) => item.style.backgroundColor && item.querySelector("p"))
+              .map((item) => {
+                const name = item.querySelector("p");
+                return {
+                  text: name.textContent.trim(),
+                  shown: name.clientWidth,
+                  needed: name.scrollWidth,
+                };
+              });
+          }
+        }
+      }
+    }).observe(document.body, { childList: true });
+  });
+
+  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
+  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
+  await page.getByRole("radio", { name: "แนวตั้ง", exact: true }).check();
+  const pending = page.waitForEvent("download", { timeout: 60_000 });
+  await page.getByRole("button", { name: "ดาวน์โหลด", exact: true }).click();
+  await pending;
+
+  const names = await page.evaluate(() => window.__names);
+  expect(names).not.toBeNull();
+  expect(names.length).toBeGreaterThan(0);
+  const whole = names.filter((name) => name.needed <= name.shown + 1);
+  expect(whole.length, "ไม่มีชื่อวิชาไหนแสดงครบเลย").toBeGreaterThan(0);
 });

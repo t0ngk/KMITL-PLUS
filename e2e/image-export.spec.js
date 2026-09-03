@@ -105,13 +105,29 @@ test("Formats are offered before downloading", async ({ openApp }) => {
 
   const menu = page.getByRole("dialog", { name: "รูปแบบภาพ" });
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole("button", { name: "แนวนอน", exact: true })).toBeVisible();
-  await expect(
-    menu.getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true }),
-  ).toBeVisible();
+  await expect(menu.getByRole("radio", { name: "แนวนอน", exact: true })).toBeVisible();
+  await expect(menu.getByRole("radio", { name: "แนวตั้ง", exact: true })).toBeVisible();
   // เปิดเมนูเฉย ๆ ต้องไม่โหลดอะไรเลย
   await page.waitForTimeout(600);
   expect(downloads).toBe(0);
+});
+
+test("One way to start a download", async ({ openApp }) => {
+  const page = await openApp("page=study");
+  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
+  const menu = page.getByRole("dialog", { name: "รูปแบบภาพ" });
+  await menu.waitFor();
+
+  // ปุ่มที่กดแล้วเกิดการดาวน์โหลดมีอันเดียว ไม่ว่าจะเลือกรูปแบบไหน
+  await expect(menu.getByRole("button")).toHaveCount(1);
+  await expect(
+    menu.getByRole("button", { name: "ดาวน์โหลด", exact: true }),
+  ).toBeVisible();
+
+  await menu.getByRole("radio", { name: "แนวนอน", exact: true }).check();
+  await expect(menu.getByRole("button")).toHaveCount(1);
+  // แนวนอนไม่มีตัวเลือกของตัวเอง จึงไม่มีสวิตช์โผล่ค้างไว้
+  await expect(menu.getByLabel("เว้นที่ให้นาฬิกา")).toHaveCount(0);
 });
 
 test("Portrait study table", async ({ openApp }) => {
@@ -245,8 +261,159 @@ test("Extent does not apply to the exam schedule", async ({ openApp }) => {
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
 
-  await expect(page.getByLabel("เผื่อพื้นที่นาฬิกา")).toBeVisible();
-  await expect(page.getByLabel("เฉพาะวัน/เวลาที่มีเรียน")).toHaveCount(0);
+  await expect(page.getByLabel("เว้นที่ให้นาฬิกา")).toBeVisible();
+  await expect(page.getByLabel("ตัดวันและเวลาที่ไม่มีเรียน")).toHaveCount(0);
+});
+
+// --- fix-portrait-legibility -------------------------------------------------
+
+// ข้อความในบล็อกอ่านได้เท่าไหร่ : เทียบกับชื่อที่ scrape มา ไม่ได้นับตัวอักษร
+const blockText = (page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("div")]
+      .filter((node) => node.style.backgroundColor && node.querySelector("p"))
+      .map((node) => {
+        const paragraphs = [...node.querySelectorAll("p")];
+        const name = paragraphs[0];
+        return {
+          name: name.textContent.trim(),
+          nameShown: name.clientWidth,
+          nameNeeded: name.scrollWidth,
+          meta: paragraphs[1]?.textContent.replace(/\s+/g, " ").trim() ?? "",
+          metaClipped: paragraphs[1]
+            ? paragraphs[1].scrollHeight > paragraphs[1].clientHeight + 1
+            : false,
+          hours: Math.round(node.parentElement.getBoundingClientRect().height / 58),
+          // ความกว้างของ wrapper บอกว่าแบ่ง lane กันกี่ชั้น (100% / lanes)
+          lanes: Math.round(
+            100 / Number.parseFloat(node.parentElement.style.width),
+          ),
+        };
+      }),
+  );
+
+test("Subject names read as words", async ({ openApp }) => {
+  const page = await openApp("page=study&export=portrait");
+  const blocks = await blockText(page);
+
+  // คาบตั้งแต่สองชั่วโมงขึ้นไปต้องได้ชื่อครบ ไม่ใช่เศษไม่กี่ตัวอักษร
+  const longEnough = blocks.filter((block) => block.hours >= 2);
+  expect(longEnough.length).toBeGreaterThan(2);
+  for (const block of longEnough) {
+    expect(block.nameShown, `${block.name} ไม่มีที่ให้ชื่อเลย`).toBeGreaterThan(0);
+  }
+
+  // ตัวอย่างที่วัดได้ : ชื่อยาวปานกลางต้องครบทั้งไทยและอังกฤษ
+  const named = (text) => blocks.find((block) => block.name.startsWith(text));
+  expect(named("SOFTWARE VERIFICATION").nameNeeded).toBeLessThanOrEqual(
+    named("SOFTWARE VERIFICATION").nameShown + 1,
+  );
+  expect(named("การเขียนโปรแกรมบนเว็บ").nameNeeded).toBeLessThanOrEqual(
+    named("การเขียนโปรแกรมบนเว็บ").nameShown + 1,
+  );
+});
+
+test("Room and section survive", async ({ openApp }) => {
+  const page = await openApp("page=study&export=portrait");
+  const blocks = await blockText(page);
+
+  // ไม่รวมบล็อกที่ซ้อนกันตั้งแต่ 3 ชั้น — คอลัมน์แคบจนใส่ได้อย่างเดียว
+  // และสิ่งที่เลือกใส่คือชื่อวิชา (ดู scenario ถัดไป)
+  const longEnough = blocks.filter((block) => block.hours >= 2 && block.lanes <= 2);
+  expect(longEnough.length).toBeGreaterThan(2);
+  for (const block of longEnough) {
+    expect(block.meta, `${block.name} ไม่มีบรรทัดเวลา/ห้อง`).not.toBe("");
+    expect(block.metaClipped, `${block.name} บรรทัดเวลา/ห้องถูกตัด`).toBe(false);
+    // เวลา ห้อง และกลุ่มอยู่ในบรรทัดเดียวกัน
+    expect(block.meta).toMatch(/\d{2}:\d{2}–\d{2}:\d{2}/);
+    expect(block.meta).toMatch(/\(\S\)$/);
+  }
+});
+
+test("The name comes first when only one thing fits", async ({ openApp }) => {
+  const page = await openApp("page=study&export=portrait");
+  const blocks = await blockText(page);
+
+  // fixture มีคาบซ้อนกันสามชั้นไว้เป็นเคสนี้ (corpus จริงไม่มีคาบซ้อนกันเลย)
+  const crowded = blocks.filter((block) => block.lanes >= 3);
+  expect(crowded.length).toBeGreaterThan(0);
+  for (const block of crowded) {
+    expect(block.nameShown, `${block.name} ไม่เหลือที่ให้ชื่อ`).toBeGreaterThan(0);
+    expect(block.meta, `${block.name} ยังใส่รายละเอียดทั้งที่ไม่มีที่`).toBe("");
+  }
+});
+
+test("A class too short to label", async ({ openApp }) => {
+  const page = await openApp("page=study&export=portrait");
+  const blocks = await blockText(page);
+
+  // fixture มีคาบ 15 นาทีไว้เป็นเคสนี้โดยเฉพาะ
+  const short = blocks.find((block) => block.name.startsWith("FIFTEEN MINUTE"));
+  expect(short).toBeDefined();
+  // ชื่อยาวกว่าที่แสดงได้ = ถูกตัด ซึ่งยอมรับ แต่บล็อกต้องยังมีตัวตนและมีสีของมัน
+  expect(short.nameNeeded).toBeGreaterThan(short.nameShown);
+  const visible = await page.evaluate(() => {
+    const node = [...document.querySelectorAll("div")].find(
+      (item) =>
+        item.style.backgroundColor &&
+        item.textContent.includes("FIFTEEN MINUTE"),
+    );
+    const box = node.getBoundingClientRect();
+    return { width: box.width, height: box.height, tint: node.style.backgroundColor };
+  });
+  expect(visible.width).toBeGreaterThan(0);
+  expect(visible.height).toBeGreaterThan(0);
+  expect(visible.tint).not.toBe("");
+});
+
+test("Nothing identifies the student", async ({ openApp }) => {
+  for (const query of [
+    "page=study&export=portrait",
+    "page=exam&export=portrait",
+  ]) {
+    const page = await openApp(query);
+    const text = await page.evaluate(() => document.body.innerText);
+    for (const word of [
+      "รหัสนักศึกษา",
+      "ชื่อ",
+      "คณะ",
+      "ภาควิชา",
+      "สาขาวิชา",
+      "65010500",
+    ]) {
+      expect(text, `${query} ยังมี "${word}"`).not.toContain(word);
+    }
+  }
+});
+
+test("The term is still stated", async ({ openApp }) => {
+  for (const query of [
+    "page=study&export=portrait",
+    "page=exam&export=portrait",
+  ]) {
+    const page = await openApp(query);
+    const text = await page.evaluate(() =>
+      document.body.innerText.replace(/\s+/g, " "),
+    );
+    expect(text, query).toMatch(/ภาคเรียนที่ \d/);
+    expect(text, query).toMatch(/ปีการศึกษา \d{4}/);
+  }
+});
+
+test("The landscape export is unchanged", async ({ openApp }) => {
+  const page = await openApp("page=study");
+
+  // ภาพแนวนอนยังมีหัวตารางเต็มรวมรหัสและชื่อ — เป็นภาพที่เก็บไว้ดูเอง
+  const inFrame = await page.evaluate(() => {
+    const sheet = document.querySelector('[class*="rounded-xl"][class*="border"]');
+    return sheet.innerText.replace(/\s+/g, " ");
+  });
+  expect(inFrame).toContain("รหัสนักศึกษา");
+  expect(inFrame).toContain("คณะ");
+
+  const file = await downloadAs(page, "แนวนอน");
+  const { width, height } = await pngBands(page, await file.path());
+  expect({ width, height }).toEqual({ width: 2784, height: 1592 });
 });
 
 // --- ที่ไม่ผูกกับ scenario : กลไกของการถ่ายนอกจอ --------------------------------
@@ -282,9 +449,8 @@ test("ผืนภาพนอกจอถูกลบแม้ตอนถ่�
 
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await page
-    .getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true })
-    .click();
+  await page.getByRole("radio", { name: "แนวตั้ง", exact: true }).check();
+  await page.getByRole("button", { name: "ดาวน์โหลด", exact: true }).click();
   await page.waitForTimeout(1500);
 
   expect(await page.evaluate(() => document.body.children.length)).toBe(before);
@@ -341,13 +507,13 @@ test("สวิตช์ของภาพแนวตั้งจำไว้�
 
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await page.getByLabel("เผื่อพื้นที่นาฬิกา").setChecked(false);
+  await page.getByLabel("เว้นที่ให้นาฬิกา").setChecked(false);
   await page.keyboard.press("Escape");
   await page.waitForTimeout(300);
 
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await expect(page.getByLabel("เผื่อพื้นที่นาฬิกา")).not.toBeChecked();
+  await expect(page.getByLabel("เว้นที่ให้นาฬิกา")).not.toBeChecked();
 
   // แต่ไม่ได้เขียนไว้ที่ไหนที่อยู่ข้ามรอบ
   const stored = await page.evaluate(() => ({

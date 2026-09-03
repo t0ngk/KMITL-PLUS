@@ -94,25 +94,33 @@ export const chooseOption = async (page, label, option) => {
   await page.waitForTimeout(1200);
 };
 
-// ปุ่มดาวน์โหลดเปิดเมนูรูปแบบ ไม่ได้โหลดทันทีอีกแล้ว (wallpaper-export decision 7)
-export const downloadAs = async (page, format = "แนวนอน") => {
-  const pending = page.waitForEvent("download", { timeout: 40_000 });
+// เมนูมีแบบเดียว : เลือกรูปแบบ -> ตั้งตัวเลือกของรูปแบบนั้น -> ปุ่มดาวน์โหลดอันเดียว
+// (fix-portrait-legibility decision 5) เทสต์ทุกตัวเดินผ่านสองตัวนี้ ไม่แตะภายในเมนูเอง
+const openMenu = async (page) => {
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await page.getByRole("button", { name: format, exact: true }).click();
+};
+
+const pressDownload = (page) =>
+  page.getByRole("button", { name: "ดาวน์โหลด", exact: true }).click();
+
+export const downloadAs = async (page, format = "แนวนอน") => {
+  await openMenu(page);
+  await page.getByRole("radio", { name: format, exact: true }).check();
+  const pending = page.waitForEvent("download", { timeout: 60_000 });
+  await pressDownload(page);
   return pending;
 };
 
-// ตั้งสวิตช์ของภาพแนวตั้งก่อนกดดาวน์โหลด — เมนูต้องเปิดค้างไว้ระหว่างตั้ง
 export const downloadPortrait = async (page, { reserve = true, fit = true } = {}) => {
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await page.getByLabel("เผื่อพื้นที่นาฬิกา").setChecked(reserve);
-  const fitBox = page.getByLabel("เฉพาะวัน/เวลาที่มีเรียน");
+  await openMenu(page);
+  await page.getByRole("radio", { name: "แนวตั้ง", exact: true }).check();
+  await page.getByLabel("เว้นที่ให้นาฬิกา").setChecked(reserve);
+  const fitBox = page.getByLabel("ตัดวันและเวลาที่ไม่มีเรียน");
   if ((await fitBox.count()) > 0) {
     await fitBox.setChecked(fit);
   }
   const pending = page.waitForEvent("download", { timeout: 60_000 });
-  await page.getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true }).click();
+  await pressDownload(page);
   return pending;
 };

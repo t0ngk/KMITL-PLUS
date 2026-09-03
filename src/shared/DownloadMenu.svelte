@@ -6,10 +6,13 @@
   import { cn } from "./cn";
   import { captureOffScreen } from "./exportCapture";
 
-  // ปุ่มดาวน์โหลดเป็นเมนูรูปแบบ ไม่ใช่กดครั้งเดียวจบอีกแล้ว
+  // ปุ่มดาวน์โหลดเป็นเมนูรูปแบบ ไม่ใช่กดครั้งเดียวจบ
   //
-  // แลกด้วยการที่คนที่อยากได้แนวนอนต้องกดสองครั้ง ทางเลือกอื่นคือปุ่มลูกศรเล็ก ๆ
-  // ข้างไอคอน ซึ่ง dock แน่นอยู่แล้วและซ่อนรูปแบบใหม่ไว้หลัง affordance ที่ไม่มีใครมอง
+  // **แบบเดียวตลอดทั้งเมนู** : เลือกรูปแบบ -> ตัวเลือกของรูปแบบนั้นโผล่ใต้มัน ->
+  // ปุ่มดาวน์โหลดอันเดียวข้างล่าง ของเดิมปนสองแบบ (แนวนอนเป็นปุ่มกดแล้วโหลดเลย
+  // ส่วนแนวตั้งเป็นหัวข้อ + checkbox + ปุ่มอีกอัน) ซึ่งอ่านแล้วไม่รู้ว่าอันไหนทำอะไร
+  //
+  // ชื่อสวิตช์บอกว่า "เพื่ออะไร" ไม่ใช่ "ทำอะไร" — คนเลือกจุดประสงค์ ไม่ได้เลือกกลไก
   //
   // target = element บนจอสำหรับแนวนอน (กรอบ capture เดิม)
   // portrait = { component, props } สำหรับแนวตั้ง ซึ่ง mount นอกจอตอนถ่าย
@@ -24,16 +27,19 @@
 
   const BASE =
     "h-8 w-8 grid place-items-center rounded-lg text-ink-2 cursor-pointer transition-colors hover:bg-hover hover:text-ink active:bg-line data-[state=open]:bg-hover data-[state=open]:text-ink";
-  const ITEM =
-    "w-full cursor-pointer rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors hover:bg-hover";
+  const CHOICE =
+    "flex cursor-pointer flex-col rounded-lg px-2.5 py-2 transition-colors hover:bg-hover";
+  const SWITCH =
+    "flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-ink transition-colors hover:bg-hover";
 
   let open = $state(false);
   let busy = $state(false);
+  let format = $state("portrait");
   // จำไว้แค่ในหน้านี้ : ไม่มีอะไรในส่วนขยายนี้ที่จำค่าข้ามรอบ และนี่ไม่ใช่ที่ที่จะเริ่ม
   let reserve = $state(true);
   let fit = $state(true);
 
-  const landscape = async () => {
+  const downloadLandscape = async () => {
     if (!target || busy) {
       return;
     }
@@ -60,7 +66,7 @@
     open = false;
   };
 
-  const portraitDownload = async () => {
+  const downloadPortrait = async () => {
     if (!portrait || busy) {
       return;
     }
@@ -78,6 +84,9 @@
     busy = false;
     open = false;
   };
+
+  const download = () =>
+    format === "landscape" ? downloadLandscape() : downloadPortrait();
 </script>
 
 <Popover.Root bind:open>
@@ -121,28 +130,73 @@
       aria-label="รูปแบบภาพ"
       class="z-[60] w-64 rounded-xl border border-line bg-white p-1.5 shadow-[0_1px_2px_rgba(16,21,27,0.04),0_8px_24px_rgba(16,21,27,0.12)] animate-fade-up animate-duration-150 animate-ease-out"
     >
-      <button class={ITEM} disabled={busy} onclick={landscape}>แนวนอน</button>
+      <fieldset class="flex flex-col gap-0.5">
+        <legend class="sr-only">รูปแบบภาพ</legend>
+
+        <!-- ผูกชื่อกับคำอธิบายด้วย id แยกกัน : ถ้าปล่อยให้ <label> ห่อ input เฉย ๆ
+             ชื่อที่ AT อ่านจะกลายเป็น "แนวนอน สำหรับดูบนคอมพิวเตอร์" ทั้งก้อน
+             ซึ่งอ่านยาวเกินไปและทำให้อ้างถึงตัวเลือกด้วยชื่อของมันไม่ได้ -->
+        <label class={CHOICE}>
+          <span class="flex items-center gap-2 text-[13px] text-ink">
+            <input
+              type="radio"
+              name="format"
+              value="landscape"
+              bind:group={format}
+              aria-labelledby="format-landscape"
+              aria-describedby="format-landscape-note"
+              class="accent-kmitl"
+            />
+            <span id="format-landscape">แนวนอน</span>
+          </span>
+          <span id="format-landscape-note" class="pl-6 text-[11px] text-ink-3">
+            สำหรับดูบนคอมพิวเตอร์
+          </span>
+        </label>
+
+        <label class={CHOICE}>
+          <span class="flex items-center gap-2 text-[13px] text-ink">
+            <input
+              type="radio"
+              name="format"
+              value="portrait"
+              bind:group={format}
+              aria-labelledby="format-portrait"
+              aria-describedby="format-portrait-note"
+              class="accent-kmitl"
+            />
+            <span id="format-portrait">แนวตั้ง</span>
+          </span>
+          <span id="format-portrait-note" class="pl-6 text-[11px] text-ink-3">
+            สำหรับตั้งเป็นพื้นหลังมือถือ
+          </span>
+        </label>
+
+        <!-- ตัวเลือกอยู่ใต้รูปแบบที่มันเป็นของ และโผล่เฉพาะตอนเลือกรูปแบบนั้น
+             แนวนอนไม่มีตัวเลือก จึงไม่มีอะไรโผล่ ไม่ใช่มีช่องว่างไว้เฉย ๆ -->
+        {#if format === "portrait"}
+          <div class="flex flex-col gap-0.5 pl-6">
+            <label class={SWITCH}>
+              <input type="checkbox" bind:checked={reserve} class="accent-kmitl" />
+              เว้นที่ให้นาฬิกา
+            </label>
+            {#if portrait?.fittable}
+              <label class={SWITCH}>
+                <input type="checkbox" bind:checked={fit} class="accent-kmitl" />
+                ตัดวันและเวลาที่ไม่มีเรียน
+              </label>
+            {/if}
+          </div>
+        {/if}
+      </fieldset>
 
       <div class="mt-1.5 border-t border-line pt-1.5">
-        <p class="px-2.5 pb-1 text-[11px] tracking-[0.08em] text-ink-3 uppercase">
-          แนวตั้ง
-        </p>
-        <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-ink transition-colors hover:bg-hover">
-          <input type="checkbox" bind:checked={reserve} class="accent-kmitl" />
-          เผื่อพื้นที่นาฬิกา
-        </label>
-        {#if portrait?.fittable}
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-ink transition-colors hover:bg-hover">
-            <input type="checkbox" bind:checked={fit} class="accent-kmitl" />
-            เฉพาะวัน/เวลาที่มีเรียน
-          </label>
-        {/if}
         <button
-          class={cn(ITEM, "mt-1 font-medium text-ink-2 hover:text-ink")}
+          class="w-full cursor-pointer rounded-lg bg-hover px-2.5 py-2 text-[13px] font-medium text-ink transition-colors hover:bg-line disabled:cursor-not-allowed disabled:text-ink-3"
           disabled={busy}
-          onclick={portraitDownload}
+          onclick={download}
         >
-          ดาวน์โหลดแนวตั้ง
+          {busy ? "กำลังสร้างภาพ…" : "ดาวน์โหลด"}
         </button>
       </div>
     </Popover.Content>

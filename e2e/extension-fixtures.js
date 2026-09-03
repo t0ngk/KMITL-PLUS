@@ -138,11 +138,13 @@ export const openRegistrar = async (page, url) => {
 
 export const flat = (text) => (text ?? "").replace(/\s+/g, " ").trim();
 
-// ปุ่มดาวน์โหลดเปิดเมนูรูปแบบ ไม่ได้โหลดทันที (wallpaper-export decision 7)
+// เมนูมีแบบเดียว : เลือกรูปแบบแล้วกดปุ่มดาวน์โหลดอันเดียว
+// (fix-portrait-legibility decision 5)
 export const downloadAs = async (page, format = "แนวนอน") => {
-  const pending = page.waitForEvent("download", { timeout: 60_000 });
   await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
   await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
-  await page.getByRole("button", { name: format, exact: true }).click();
+  await page.getByRole("radio", { name: format, exact: true }).check();
+  const pending = page.waitForEvent("download", { timeout: 60_000 });
+  await page.getByRole("button", { name: "ดาวน์โหลด", exact: true }).click();
   return pending;
 };
