@@ -1,10 +1,6 @@
 # image-export
 
-## Purpose
-
-Let students download the redesigned study table or exam schedule as a PNG image for sharing.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: One-click PNG download of the rendered view
 
@@ -25,17 +21,7 @@ Both redesigned views SHALL offer a download control that captures the content a
 - **WHEN** the student activates the download control
 - **THEN** the available formats are presented and nothing is downloaded until one is chosen
 
-### Requirement: Controls are excluded from the capture
-
-Floating action buttons, pickers, and other interactive controls SHALL NOT appear in the exported image; interactive selectors inside the captured area SHALL be replaced by their plain-text value during capture.
-
-#### Scenario: Exam term selector during capture
-- **WHEN** the exam schedule is captured while the Mid/Final selector is inside the captured area
-- **THEN** the exported image shows the selected term as static text, not a form control
-
-#### Scenario: Floating controls
-- **WHEN** either view is captured
-- **THEN** no floating buttons or pickers appear in the image
+## ADDED Requirements
 
 ### Requirement: Portrait export fits a phone screen
 

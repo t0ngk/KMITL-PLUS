@@ -2,6 +2,7 @@
   import { onMount, untrack } from "svelte";
   import Controls from "./Controls.svelte";
   import Grid from "./Grid.svelte";
+  import StudyExport from "./StudyExport.svelte";
   import HeaderCard from "./HeaderCard.svelte";
   import { scrapeStudyTablePage, toHeader } from "./scraper";
   import { fetchStudyTable, fetchTermOptions } from "../../services/reg";
@@ -149,6 +150,11 @@
   bind:theme
   bind:headerColor
   captureTarget={table}
+  portrait={{
+    component: StudyExport,
+    fittable: true,
+    props: { schedule: currentSchedule, header, headerColor, theme },
+  }}
   customizable
   onResetTheme={resetTheme}
   {pickerReady}

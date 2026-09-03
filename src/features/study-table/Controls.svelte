@@ -1,6 +1,6 @@
 <script>
   import CustomizeMenu from "./CustomizeMenu.svelte";
-  import DownloadButton from "../../shared/DownloadButton.svelte";
+  import DownloadMenu from "../../shared/DownloadMenu.svelte";
   import TermSelect from "../../shared/TermSelect.svelte";
 
   // dock ใช้ร่วมกันทั้งสองหน้า : หน้าตารางสอบไม่มี picker และไม่มีเมนูแต่งสี
@@ -8,6 +8,8 @@
   let {
     mode = $bindable(),
     captureTarget,
+    // { component, props, fittable } ของภาพแนวตั้ง — mount นอกจอตอนถ่าย
+    portrait,
     theme = $bindable(),
     headerColor = $bindable(),
     onResetTheme,
@@ -68,7 +70,13 @@
       {#if customizable}
         <CustomizeMenu bind:theme bind:headerColor onReset={onResetTheme} />
       {/if}
-      <DownloadButton target={captureTarget} iconClass="w-4 h-4" {onCaptureStart} {onCaptureEnd} />
+      <DownloadMenu
+        target={captureTarget}
+        {portrait}
+        iconClass="w-4 h-4"
+        {onCaptureStart}
+        {onCaptureEnd}
+      />
       <div class="mx-0.5 h-5 w-px bg-line"></div>
     {/if}
     <button

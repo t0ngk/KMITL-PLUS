@@ -27,6 +27,9 @@ export function loadRegistrarStylesheet(doc = document) {
 export const FIXTURES = {
   studyMega: "study-table-mega.html",
   studyEmpty: "study-table-empty.html",
+  // ภาคเรียนจริงหน้าหนึ่ง : จ. _ พ. พฤ. ศ. เวลา 09:00-18:00
+  // มีวันว่างกลางสัปดาห์ ไม่มีคาบ 08:00 ไม่มีเสาร์อาทิตย์ — เคสของ export ที่ตัดตามเนื้อหา
+  studyTypical: "study-table-typical.html",
   examMega: "exam-mega.html",
   // หน้าเลือกเทอมของ reg ตัวจริง ไม่ต้อง redact : ไม่มีข้อมูลนักศึกษาอยู่ในนั้นเลย
   // (ตรวจแล้ว — มีแต่ตัวเลือกปี/ภาคเรียน ปุ่ม และข้อความไทยของหน้า)

@@ -44,3 +44,52 @@ export async function pngColors(page, filePath, { withSize = false } = {}) {
     { data: base64, wantSize: withSize },
   );
 }
+
+/**
+ * ขนาดของ PNG และจำนวนสีที่พบในแถบบน/ล่าง
+ *
+ * ใช้ตรวจว่าแถบที่เว้นไว้ "ว่างจริง" — ว่างแปลว่าทั้งแถบเป็นสีเดียว ไม่ใช่แค่
+ * ดูเหมือนว่างตอนมองภาพ
+ */
+export async function pngBands(page, filePath, { top = 0.2, bottom = 0.14 } = {}) {
+  const base64 = (await fs.readFile(filePath)).toString("base64");
+
+  return page.evaluate(
+    async ({ data, topRatio, bottomRatio }) => {
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error("โหลด PNG ไม่ได้"));
+        image.src = `data:image/png;base64,${data}`;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0);
+
+      const distinct = (y, height) => {
+        const pixels = context.getImageData(0, y, canvas.width, height).data;
+        const seen = new Set();
+        for (let index = 0; index < pixels.length; index += 16) {
+          seen.add(
+            `${pixels[index]},${pixels[index + 1]},${pixels[index + 2]}`,
+          );
+        }
+        return seen.size;
+      };
+
+      return {
+        width: canvas.width,
+        height: canvas.height,
+        ratio: canvas.width / canvas.height,
+        topColors: distinct(0, Math.floor(canvas.height * topRatio)),
+        bottomColors: distinct(
+          canvas.height - Math.floor(canvas.height * bottomRatio),
+          Math.floor(canvas.height * bottomRatio),
+        ),
+      };
+    },
+    { data: base64, topRatio: top, bottomRatio: bottom },
+  );
+}

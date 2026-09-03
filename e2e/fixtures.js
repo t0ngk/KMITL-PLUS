@@ -93,3 +93,26 @@ export const chooseOption = async (page, label, option) => {
   await page.getByRole("option", { name: option, exact: true }).click();
   await page.waitForTimeout(1200);
 };
+
+// ปุ่มดาวน์โหลดเปิดเมนูรูปแบบ ไม่ได้โหลดทันทีอีกแล้ว (wallpaper-export decision 7)
+export const downloadAs = async (page, format = "แนวนอน") => {
+  const pending = page.waitForEvent("download", { timeout: 40_000 });
+  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
+  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
+  await page.getByRole("button", { name: format, exact: true }).click();
+  return pending;
+};
+
+// ตั้งสวิตช์ของภาพแนวตั้งก่อนกดดาวน์โหลด — เมนูต้องเปิดค้างไว้ระหว่างตั้ง
+export const downloadPortrait = async (page, { reserve = true, fit = true } = {}) => {
+  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
+  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
+  await page.getByLabel("เผื่อพื้นที่นาฬิกา").setChecked(reserve);
+  const fitBox = page.getByLabel("เฉพาะวัน/เวลาที่มีเรียน");
+  if ((await fitBox.count()) > 0) {
+    await fitBox.setChecked(fit);
+  }
+  const pending = page.waitForEvent("download", { timeout: 60_000 });
+  await page.getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true }).click();
+  return pending;
+};

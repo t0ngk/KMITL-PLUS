@@ -14,7 +14,11 @@ import { mount } from "svelte";
 import "./harness.css";
 import "../../src/assets/fonts.css";
 import ExamSchedule from "../../src/features/exam-schedule/ExamSchedule.svelte";
+import ExamExport from "../../src/features/exam-schedule/ExamExport.svelte";
+import StudyExport from "../../src/features/study-table/StudyExport.svelte";
 import StudyTable from "../../src/features/study-table/StudyTable.svelte";
+import { toHeader } from "../../src/features/study-table/scraper";
+import { DEFAULT_HEADER_COLOR, makeTheme } from "../../src/shared/theme";
 import { scrapeExamPage } from "../../src/features/exam-schedule/scraper";
 import { scrapeStudyTablePage } from "../../src/features/study-table/scraper";
 import { captureRegistrarStyles } from "../../src/shared/registrarStyles";
@@ -61,6 +65,11 @@ captureRegistrarStyles();
 
 const requested = params.get("page") ?? "study";
 const page = PAGES[requested] ?? PAGES.study;
+// ?fixture=typical : ภาคเรียนจริงที่ไม่ได้เรียนทุกวันและไม่ได้เริ่ม 08:00
+// fixture ปกติเป็นตัว mega ที่จงใจใช้ทุกวันทุกชั่วโมง จึงไม่มีอะไรให้ตัด
+if (requested === "study" && params.get("fixture") === "typical") {
+  page.fixture = FIXTURES.studyTypical;
+}
 document.title = `KMITL + preview — ${page.title}`;
 
 const { doc, bodyHtml } = await loadFixture(page.fixture);
@@ -80,7 +89,35 @@ if (params.get("term")) {
 
 const scraped = page.scrape(doc);
 
-if (!scraped) {
+// ?export=portrait[-full][-week] : เปิดผืนภาพ export ขึ้นมาดูบนหน้าเลย
+// ปกติมันถูก mount นอกจอชั่วครู่แล้วถ่าย ซึ่งดูด้วยตาไม่ได้และเทสต์จับ layout ไม่ได้
+//   portrait            เว้นแถบนาฬิกา + ตัดตามเนื้อหา (ค่าที่ใช้เป็นวอลเปเปอร์)
+//   portrait-full       เต็มผืน
+//   portrait-week       ทั้งสัปดาห์ 08:00-20:00
+//   portrait-full-week  ทั้งคู่
+const exportMode = params.get("export");
+if (exportMode?.startsWith("portrait") && requested === "exam" && scraped) {
+  mount(ExamExport, {
+    target: document.body,
+    props: {
+      schedule: scraped.schedule,
+      data: scraped.data,
+      reserve: !exportMode.includes("full"),
+    },
+  });
+} else if (exportMode?.startsWith("portrait") && requested === "study" && scraped) {
+  mount(StudyExport, {
+    target: document.body,
+    props: {
+      schedule: scraped.schedule,
+      header: toHeader(scraped.info),
+      headerColor: DEFAULT_HEADER_COLOR,
+      theme: makeTheme(scraped.schedule),
+      reserve: !exportMode.includes("full"),
+      fit: !exportMode.includes("week"),
+    },
+  });
+} else if (!scraped) {
   // บนหน้าจริง boot.js จะปล่อยหน้าเดิมไว้ ที่นี่ไม่มีหน้าเดิม จึงบอกให้ชัดว่าพังตรงไหน
   document.body.textContent = `scrape ${page.fixture} ไม่สำเร็จ — scraper คืน null`;
 } else {

@@ -46,6 +46,18 @@ test("Normal page load", async ({ openApp, consoleErrors }) => {
   await expect(block).toHaveCount(1);
   await expect(block).toContainText("–");
   await expect(block).toContainText("(ท)");
+
+  // ตำแหน่งต้องตรงกับเวลาจริง ไม่ใช่แค่ "มีบล็อกอยู่" — 09:00-12:00 บนแกนที่เริ่ม
+  // 08:00 ช่องละ 15 นาที และคอลัมน์ 1 เป็นชื่อวัน => เส้น 6 ถึง 18
+  const placed = await page.evaluate(() => {
+    const node = [...document.querySelectorAll("div")].find(
+      (item) =>
+        item.style.backgroundColor &&
+        item.textContent.includes("SOFTWARE VERIFICATION AND VALIDATION"),
+    );
+    return getComputedStyle(node.parentElement).gridColumn;
+  });
+  expect(placed).toBe("6 / 18");
   expect(consoleErrors).toEqual([]);
 });
 

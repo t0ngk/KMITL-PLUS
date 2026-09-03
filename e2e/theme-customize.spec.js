@@ -1,4 +1,4 @@
-import { chooseOption, expect, pickerText, test } from "./fixtures";
+import { chooseOption, downloadAs, expect, pickerText, test } from "./fixtures";
 import { pngColors } from "./png";
 
 // ชื่อ test ตรงกับ #### Scenario: ใน openspec/specs/theme-customize/spec.md
@@ -68,9 +68,7 @@ test("Customize a subject color", async ({ openApp }) => {
   expect(others["ENGLISH DAY NAME LECTURE"][0]).not.toBe(after);
 
   // และภาพที่ export ต้องมีสีใหม่จริง ไม่ใช่แค่หน้าจอเปลี่ยน
-  const pending = page.waitForEvent("download", { timeout: 40_000 });
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  const file = await pending;
+  const file = await downloadAs(page);
   const colors = await pngColors(page, await file.path());
   expect(colors).toContain(after);
 });

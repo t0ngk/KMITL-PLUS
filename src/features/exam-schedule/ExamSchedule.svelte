@@ -2,6 +2,7 @@
   import { untrack } from "svelte";
 
   import ExamHeader from "./ExamHeader.svelte";
+  import ExamExport from "./ExamExport.svelte";
   import ExamTable from "./ExamTable.svelte";
   import { scrapeExamPage } from "./scraper";
   import Controls from "../study-table/Controls.svelte";
@@ -87,6 +88,11 @@
 <Controls
   bind:mode
   captureTarget={table}
+  portrait={{
+    component: ExamExport,
+    fittable: false,
+    props: { schedule: currentSchedule, data: currentData },
+  }}
   {switching}
   {switchError}
   onCaptureStart={() => {

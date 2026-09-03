@@ -1,66 +1,59 @@
 <script>
-  import { blockColors } from "../../shared/colors";
-  import { getTheme } from "../../shared/theme";
+  import {
+    fullExtent,
+    layoutWeek,
+    SLOTS_PER_HOUR,
+  } from "./placement";
   import { thaiDays } from "../../shared/dateNames";
 
-  // แกนเวลาคงที่ 08:00-20:00 : ทุกภาคเรียนอ่านที่ตำแหน่งเดิม และรูปที่ export
-  // ออกไปเทียบกันได้ตรง ๆ ตารางที่เรียนไม่เต็มช่วงจึงมีคอลัมน์ว่างโดยตั้งใจ
-  const START_HOUR = 8;
-  const HOUR_COUNT = 12;
-  // ช่อง 15 นาทีเป็นหน่วยของ "การวางบล็อก" เท่านั้น เส้นที่วาดจริงมีแค่ขอบชั่วโมง
-  const SLOTS_PER_HOUR = 4;
-  const SLOT_COUNT = HOUR_COUNT * SLOTS_PER_HOUR;
+  // ที่นี่วาดเวลาเป็นแกนนอน วันเป็นแกนตั้ง ส่วนตรรกะว่าวิชาไหนอยู่ช่องไหน
+  // อยู่ที่ placement.js ซึ่งกริดแนวตั้งของภาพ export ใช้ตัวเดียวกัน
+  //
+  // เกณฑ์ว่า "อะไรใส่ลงได้" ไม่ได้อยู่ในนั้นโดยตั้งใจ : ที่นี่หนึ่งชั่วโมงคือความกว้าง
+  // ~116px แต่ในแนวตั้งคือความสูง ~87px คนละเรื่องกัน แต่ละท่าจึงตัดสินเอง
+  let { schedule, theme } = $props();
+
   // คอลัมน์ 1 คือชื่อวัน ช่องเวลาช่องแรกจึงเริ่มที่เส้นกริดที่ 2
   const COLUMN_OFFSET = 2;
-  const GRID_END = SLOT_COUNT + COLUMN_OFFSET;
   const DAY_COLUMN = "3.5rem";
   // คาบสั้นที่ไม่มีที่พอใส่ชื่อ ยืมช่องว่างข้าง ๆ ได้มากสุดเท่านี้
   const LABEL_OVERFLOW_SLOTS = 8;
 
-  let { schedule, theme } = $props();
-
   const pad = (value) => String(value).padStart(2, "0");
-  const minutesOf = (time) => {
-    const [hour, minute] = time.split(":");
-    return parseInt(hour) * 60 + parseInt(minute);
-  };
-  // "HH:MM" -> ลำดับช่อง 15 นาทีนับจาก START_HOUR (ข้อมูล snap มาที่ 15 นาทีแล้ว)
-  const slotOf = (time) => Math.floor((minutesOf(time) - START_HOUR * 60) / 15);
 
-  const hours = Array.from({ length: HOUR_COUNT }, (_, index) => index + START_HOUR);
+  const extent = $derived(fullExtent(schedule));
+  const hours = $derived(
+    Array.from(
+      { length: extent.hourCount },
+      (_, index) => index + extent.startHour,
+    ),
+  );
+  const gridEnd = $derived(extent.hourCount * SLOTS_PER_HOUR + COLUMN_OFFSET);
 
-  // วิชา -> พิกัดคอลัมน์ตรง ๆ เรียงตามลำดับใน schedule เดิม
-  // วิชาที่มาทีหลังจึงทับวิชาก่อนหน้าเมื่อเวลาซ้อนกัน
   const rows = $derived(
-    thaiDays.map((_, dayIndex) => {
-      const cards = schedule
-        .filter((item) => item.dayIndex === dayIndex)
-        .map((item) => {
-          const columnStart = slotOf(item.start) + COLUMN_OFFSET;
-          const columnEnd = slotOf(item.end) + COLUMN_OFFSET;
-          const slotSpan = columnEnd - columnStart;
-          return {
-            item,
-            colors: blockColors(getTheme(theme, item.subjectId)),
-            columnStart,
-            columnEnd,
-            // คาบสั้นกว่า 1 ชั่วโมงไม่มีที่พอสำหรับสามบรรทัด และคาบ 15-30 นาที
-            // ไม่มีที่พอแม้แต่ชื่อวิชา — ตัดเนื้อหาลงตามความกว้างจริง ไม่ปล่อยให้ล้น
-            detail: slotSpan >= SLOTS_PER_HOUR,
-            titled: slotSpan > 2,
-            label: `${item.subjectName} ${item.start}–${item.end}`,
-          };
-        });
+    layoutWeek(schedule, theme, extent).map((day) => {
+      const cards = day.cards.map((card) => ({
+        ...card,
+        columnStart: card.slotStart + COLUMN_OFFSET,
+        columnEnd: card.slotEnd + COLUMN_OFFSET,
+        // คาบสั้นกว่า 1 ชั่วโมงไม่มีที่พอสำหรับสามบรรทัด และคาบ 15-30 นาที
+        // ไม่มีที่พอแม้แต่ชื่อวิชา — ตัดเนื้อหาลงตามความกว้างจริง ไม่ปล่อยให้ล้น
+        detail: card.slotSpan >= SLOTS_PER_HOUR,
+        titled: card.slotSpan > 2,
+      }));
       // บล็อกที่แคบจนไม่เหลือที่ใส่ชื่อ ให้ชื่อเริ่มในบล็อกแล้วล้นออกทางขวา
       // สีอย่างเดียวบอกไม่ได้ว่าวิชาอะไร และ title/sr-only ไม่ติดไปในรูป PNG
       return {
-        dayIndex,
+        dayIndex: day.dayIndex,
         cards: cards.map((card, index) => {
           if (card.titled) {
             return card;
           }
-          const nextStart = cards[index + 1]?.columnStart ?? GRID_END;
-          const labelEnd = Math.min(card.columnEnd + LABEL_OVERFLOW_SLOTS, nextStart);
+          const nextStart = cards[index + 1]?.columnStart ?? gridEnd;
+          const labelEnd = Math.min(
+            card.columnEnd + LABEL_OVERFLOW_SLOTS,
+            nextStart,
+          );
           return { ...card, labelEnd: labelEnd > card.columnEnd ? labelEnd : null };
         }),
       };
@@ -71,7 +64,7 @@
 <div class="flex min-h-0 flex-1">
   <div
     class="grid min-h-0 w-full flex-1 bg-white"
-    style="grid-template-columns: {DAY_COLUMN} repeat({SLOT_COUNT}, minmax(0, 1fr));
+    style="grid-template-columns: {DAY_COLUMN} repeat({extent.hourCount * SLOTS_PER_HOUR}, minmax(0, 1fr));
            grid-template-rows: auto repeat({rows.length}, minmax(3.5rem, 1fr));"
   >
     <div style="grid-column: 1; grid-row: 1;"></div>

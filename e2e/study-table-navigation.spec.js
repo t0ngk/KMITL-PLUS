@@ -1,5 +1,6 @@
 import {
   chooseOption,
+  downloadAs,
   expect,
   pickerText,
   subjectBlocks,
@@ -91,9 +92,7 @@ test("Download after switching terms", async ({ openApp }) => {
   const page = await openApp("page=study&term=3/2565");
   await chooseOption(page, "ภาคเรียน", "ภาคเรียนที่ 2");
 
-  const download = page.waitForEvent("download", { timeout: 30_000 });
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  const file = await download;
+  const file = await downloadAs(page);
   expect(file.suggestedFilename()).toMatch(/\.png$/);
 
   // กรอบ capture คือแผ่นตาราง picker อยู่นอกกรอบเสมอ

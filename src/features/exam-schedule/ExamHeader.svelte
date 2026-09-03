@@ -23,7 +23,11 @@
 
 </script>
 
-<header class="flex items-center justify-between gap-6 border-b border-line px-6 py-3">
+<!-- flex-wrap : ในภาพ export แนวตั้ง (กว้าง ~500px) ป้ายภาคเรียนกับบรรทัดรหัส/ชื่อ
+     จะทับกันถ้าไม่ยอมให้ขึ้นบรรทัดใหม่ บนจอกว้างไม่มีผลอะไร -->
+<header
+  class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-b border-line px-6 py-3"
+>
   <div class="flex min-w-0 items-baseline gap-2">
     <p class="shrink-0 text-[13px] font-medium text-ink">{data.studentInfo}</p>
     <p class="truncate text-[11px] text-ink-3">

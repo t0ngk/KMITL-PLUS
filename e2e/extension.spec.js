@@ -3,6 +3,7 @@ import path from "node:path";
 
 import {
   EXAM_TABLE_URL,
+  downloadAs,
   EXTENSION_DIR,
   expect,
   flat,
@@ -151,9 +152,7 @@ test("PNG export จาก extension จริง", async ({ regPage }) => {
   const { page } = regPage;
   await openRegistrar(page, STUDY_TABLE_URL);
 
-  const pending = page.waitForEvent("download", { timeout: 60_000 });
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  const file = await pending;
+  const file = await downloadAs(page);
   const saved = path.join(
     fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "kmitl-e2e-")),
     "study.png",
@@ -225,9 +224,7 @@ test("PNG export ตารางสอบจาก extension จริง", asyn
   const { page } = regPage;
   await openRegistrar(page, EXAM_TABLE_URL);
 
-  const pending = page.waitForEvent("download", { timeout: 60_000 });
-  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
-  const file = await pending;
+  const file = await downloadAs(page);
   expect(file.suggestedFilename()).toMatch(/\.png$/);
 });
 
@@ -240,4 +237,35 @@ test("ไอคอนถูก emit และ manifest ชี้ถูก", asyn
   for (const icon of icons) {
     expect(fs.existsSync(path.join(EXTENSION_DIR, icon))).toBe(true);
   }
+});
+
+test("ภาพแนวตั้ง export ได้จาก extension จริง", async ({ regPage }) => {
+  const { page } = regPage;
+  await openRegistrar(page, STUDY_TABLE_URL);
+
+  // แนวตั้ง mount ผืนภาพนอกจอแล้วถ่าย — คนละทางกับแนวนอนที่ถ่ายของบนจอ
+  // ต้องพิสูจน์บน bundle จริง ไม่ใช่แค่ใน harness
+  await page.getByLabel("ดาวน์โหลดรูปภาพ").click();
+  await page.getByRole("dialog", { name: "รูปแบบภาพ" }).waitFor();
+  const pending = page.waitForEvent("download", { timeout: 60_000 });
+  await page
+    .getByRole("button", { name: "ดาวน์โหลดแนวตั้ง", exact: true })
+    .click();
+  const file = await pending;
+
+  const saved = path.join(
+    fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "kmitl-e2e-")),
+    "portrait.png",
+  );
+  await file.saveAs(saved);
+  const buffer = fs.readFileSync(saved);
+  expect(buffer.readUInt32BE(16)).toBe(1080);
+  expect(buffer.readUInt32BE(20)).toBe(2520);
+
+  // และผืนภาพถูกเก็บกวาดหลังถ่าย
+  expect(
+    await page.evaluate(
+      () => document.querySelectorAll('[style*="left: -10000px"]').length,
+    ),
+  ).toBe(0);
 });
