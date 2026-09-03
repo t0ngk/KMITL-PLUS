@@ -1,0 +1,148 @@
+/* fixture : stylesheet สาธารณะของ reg ดึงจาก
+   https://www.reg.kmitl.ac.th/css/registrar.css เมื่อ 2026-09-03 ไม่มีข้อมูลส่วนบุคคล
+
+   เก็บไว้ทั้งไฟล์รวมบรรทัด <STYLE type=text/css> ที่นำหน้าอยู่ ห้ามลบ :
+   CSS error recovery จะกลืนกฎ BODY ตัวถัดไปไปด้วย กฎแรกที่ทำงานจริงคือ TD
+   ซึ่งเป็นเหตุผลว่าทำไมพื้นหลัง/ฟอนต์ของ body หน้า reg ไม่เคยมาจากไฟล์นี้ */
+<STYLE type=text/css>
+
+BODY {
+
+	FONT-SIZE: 13px; COLOR: #000000; FONT-FAMILY:Microsoft Sans Serif ,Arial
+
+}
+
+TD {
+
+	FONT-SIZE: 13px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+.ss {
+
+	FONT-WEIGHT: bold; FONT-SIZE: 10px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+.ss_n {
+
+	FONT-WEIGHT: normal; FONT-SIZE: 10px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+.ss_th {
+
+	FONT-SIZE: 11px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+SELECT {
+
+	FONT-SIZE: 11px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+INPUT {
+
+	FONT-SIZE: 11px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+TEXTAREA {
+
+	FONT-SIZE: 13px; COLOR: #000000; FONT-FAMILY: Microsoft Sans Serif ,Arial
+
+}
+
+A {
+
+	FONT-SIZE: 13px; COLOR: #015391; FONT-FAMILY: Microsoft Sans Serif ,Arial; TEXT-DECORATION: none
+
+}
+
+A:visited {
+
+	FONT-SIZE: 13px; COLOR: #015391; FONT-FAMILY: Microsoft Sans Serif ,Arial; TEXT-DECORATION: none
+
+}
+
+A:active {
+
+	FONT-SIZE: 13px; COLOR: #ff6600; FONT-FAMILY: Microsoft Sans Serif ,Arial; TEXT-DECORATION: none
+
+}
+
+A:hover {
+
+	FONT-SIZE: 13px; COLOR: #ff6600; FONT-FAMILY: Microsoft Sans Serif ,Arial; TEXT-DECORATION: underline
+
+}
+
+
+
+.shakeimage {
+
+	POSITION: relative
+
+}
+
+.boxborder {
+
+	BORDER-RIGHT: #000000 1px solid; BORDER-TOP: #000000 1px solid; BORDER-LEFT: #000000 1px solid; BORDER-BOTTOM: #000000 1px solid
+
+}
+
+.IVR {
+
+	COLOR: #000000; LETTER-SPACING: 2px; TEXT-DECORATION: none
+
+}
+
+A.IVR {
+
+	COLOR: #000000; LETTER-SPACING: 2px; TEXT-DECORATION: none
+
+}
+
+A.IVR:visited {
+
+	COLOR: #000000; LETTER-SPACING: 2px; TEXT-DECORATION: none
+
+}
+
+IMG{ border:0px;
+
+}
+
+h1, h2, h3, h4, h5, h6, b, u, i {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+
+.gray{background:#ECECEC; vertical-align:middle;}
+
+.orange{background:#FDF3E7; vertical-align:middle;}
+
+.arrow-gray{background:url(../images/arrow_tr.gif) left #ECECEC no-repeat; padding-left:8px; vertical-align:middle;}
+
+.arrow-orange{background:url(../images/arrow_tr.gif) left #FDF3E7 no-repeat; padding-left:8px; vertical-align:middle; }
+
+
+.black-ribbon {
+  position: fixed;
+  z-index: 9999;
+  width: 70px;
+}
+@media only all and (min-width: 768px) {
+  .black-ribbon {
+    width: auto;
+  }
+}
+
+.stick-top { top: 0; }
+.stick-left { left: 0; }
+
+</STYLE>
+

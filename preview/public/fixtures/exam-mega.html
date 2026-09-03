@@ -1,0 +1,450 @@
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head>
+
+<title>www.reg.kmitl.ac.th</title>
+
+<META http-equiv=Content-Language content=th>
+
+<META http-equiv=Content-Type content="text/html; charset=tis-620">
+
+<LINK href="../css/registrar.css" type="text/css" rel="stylesheet">
+
+<SCRIPT language=JavaScript src="../scripts/allscript.js"></SCRIPT>
+
+
+
+
+<script language="JavaScript" type="text/JavaScript">
+function Go2Edit(Command)
+{ 
+	document.edit.command.value = Command;
+}
+
+//==============================================
+//  A) RefreshEdit
+//==============================================
+function RefreshEdit()
+{
+	window.status	= "โปรดรอสักครู่...ขณะนี้โปรแกรมกำลังทำการสืบค้นข้อมูลอยู่...";
+	document.form1.action	= "report_examtable_show.php";
+	document.form1.submit();
+}
+
+</script>
+
+</head>
+<body bgColor="#ffffff" leftMargin="0" topMargin="0" marginheight="0" marginwidth="0">
+<center>
+<form name="form1" method="post" action="report_examtable_show.php" target="_top" enctype="multipart/form-data">
+<input type="hidden" name="year" id="year" value="2566">
+<input type="hidden" name="semester" id="semester" value="2">
+<input type="hidden" name="student_id" id="student_id" value="65010500">
+
+<table cellspacing="0" cellpadding="0" width="1236" border="0">
+<TBODY>
+
+  <TR>
+    <TD width="1236" height="10"></TD>
+  </TR>
+
+  <TR>
+
+    <TD align="center" vAlign=middle><div align="right"><a href="../index.php"><img src=images/u_student2.jpg alt="กลับไปหน้าแรก" width="750" height="40" border="0"></a></div></TD>
+
+  </TR>
+
+
+
+
+  <TR>
+
+    <TD height="15" align="left">&nbsp;ดาวน์โหลด : <a href="report_examtable_pdf.php?year=%ED%EA%E9%E9&semester=%ED&mid_or_final=%92&show_place=-1&student_id=%E9%EB%EF%E8%EF%EF%EE%EE"><img src="../images/pdf16.gif" alt="ดาวน์โหลด .pdf ไฟล์ตารางสอบส่วนบุคคล" width="16" height="16" border="0"></a></TD>
+
+  </TR>
+
+	
+
+  <TR>
+    <TD height=21 align="center" background="../images/label_m21.jpg"><strong>ตารางสอบส่วนบุคคล</strong></TD>
+  </TR>
+
+  <tr>
+        <td><table width="1282" border=0 align="center" cellpadding=0 cellspacing=0>
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</strong></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>คณะ เทคโนโลยีสารสนเทศ</strong></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>ภาควิชา</strong>&nbsp;เทคโนโลยีสารสนเทศ&nbsp;&nbsp;&nbsp;<strong>สาขาวิชา</strong>&nbsp;เทคโนโลยีสารสนเทศ</td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>ประจำภาคเรียนที่</strong>&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>ปีการศึกษา</strong>&nbsp;2566</td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>รหัสนักศึกษา</strong>&nbsp;65010500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>ชื่อ</strong>&nbsp;นายตัวอย่าง&nbsp;นามสมมติ</td>
+
+            </tr>
+
+            <tr>
+              <td colspan="17" height="1" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="18" align="center" bgcolor="#E1E1E1"><strong>การสอบ</strong>&nbsp;<select name='mid_or_final' id='mid_or_final' onchange='return RefreshEdit();' style='width:100px'><option value='M'  selected>กลางภาค</option><option value='F' >ปลายภาค</option></select></td>
+            </tr>
+
+            <tr>
+              <td colspan="17" height="15" align="center" bgcolor="#E1E1E1"></td>
+            </tr>
+            <tr>
+              <td colspan="17" height="1" align="center"></td>
+            </tr>
+
+            <tr>
+              <td width="39" align="center" bgcolor="#E1E1E1"><strong>ลำดับที่</strong></td>
+              <td width="1"></td>
+              <td width="51" height="20" align="center" bgcolor="#E1E1E1"><strong>รหัสวิชา</strong></td>
+              <td width="1"></td>
+              <td width="298" height="22" align="center" bgcolor="#E1E1E1"><strong>รายวิชา</strong></td>
+              <td width="1" ></td>
+              <td width="45" align="center" bgcolor="#E1E1E1"><strong>กลุ่ม</strong></td>
+              <td width="1" ></td>
+			  <td width="50" align="center" bgcolor="#E1E1E1"><strong>หน่วยกิต</strong></td>
+              <td width="1" ></td>
+              <td width="192" align="center" bgcolor="#E1E1E1"><strong>ทฤษฎี/ปฏิบัติ</strong></td>
+              <td width="1" ></td>
+              <td width="172" align="center" bgcolor="#E1E1E1"><strong>วัน-เดือน-ปี ที่สอบ</strong></td>
+              <td width="1" ></td>
+              <td width="157" align="center" bgcolor="#E1E1E1"><strong>เวลาสอบ</strong></td>
+              <td width="1" ></td>
+              <td width="235" align="center" bgcolor="#E1E1E1"><strong>อาคาร-ห้อง-ที่นั่งสอบ</strong></td>
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#f0f0f0">1</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">06016307</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#f0f0f0">INFORMATION TECHNOLOGY PROJECT MANAGEMENT</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">2</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#f0f0f0">3 (3-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">จ. 22 ม.ค. 24&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">09:30-12:30 น.</td>
+              <td></td>
+                              <td align="center"  bgcolor="#f0f0f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4006016307%40INFORMATION+TECHNOLOGY+PROJECT+MANAGEMENT%40223%40M+22%401%403">IT:M 22:A3</a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#fef8f0">2</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">06016318</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#fef8f0">SEMINAR ON PROFESSIONAL COMMUNICATION SKILLS</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">3</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#fef8f0">1 (1-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0"></td>
+              <td></td>
+                            <td align="center" valign="top" bgcolor="#fef8f0"><br>สอบในช่วงสอบปลายภาค (ในห้องสอบ)<br>Examination during the final exam (in the examination room)<hr><br><br></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#f0f0f0">3</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">06016326</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#f0f0f0">SOFTWARE VERIFICATION AND VALIDATION</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">1</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#f0f0f0">3 (3-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0"></td>
+              <td></td>
+                            <td align="center" valign="top" bgcolor="#f0f0f0"><br>สอบในช่วงสอบปลายภาค (ในห้องสอบ)<br>Examination during the final exam (in the examination room)<hr><br><br></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#fef8f0">4</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">06016327</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#fef8f0">CLOUD-BASED ENTERPRISE APPLICATION DEVELOPMENT</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">3</td>
+			  <td></td>
+              <td align="center"  bgcolor="#fef8f0">3 (2-2)</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ส. 27 ม.ค. 24&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">09:30-12:30 น.</td>
+              <td></td>
+                 <td width="35" align="center"  bgcolor="#fef8f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4006016327%40CLOUD-BASED+ENTERPRISE+APPLICATION+DEVELOPMENT%40223%40L207%401%404">IT:L207:A4</a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#fef8f0">4</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">06016327</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#fef8f0">CLOUD-BASED ENTERPRISE APPLICATION DEVELOPMENT</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">4</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#fef8f0">3 (2-2)</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ปฏิบัติ </td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ส. 27 ม.ค. 24&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">09:30-12:30 น.</td>
+              <td></td>
+                              <td align="center"  bgcolor="#fef8f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4006016327%40CLOUD-BASED+ENTERPRISE+APPLICATION+DEVELOPMENT%40223%40L207%401%404">IT:L207:A4</a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#f0f0f0">5</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">06016328</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#f0f0f0">SOFTWARE DEVELOPMENT TOOLS AND ENVIRONMENTS</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">1</td>
+			  <td></td>
+              <td align="center"  bgcolor="#f0f0f0">3 (2-2)</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">อ. 23 ม.ค. 24&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">13:30-16:30 น.</td>
+              <td></td>
+                 <td width="35" align="center"  bgcolor="#f0f0f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4006016328%40SOFTWARE+DEVELOPMENT+TOOLS+AND+ENVIRONMENTS%40223%40M+04%401%401">IT:M 04:A1</a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#f0f0f0">5</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">06016328</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#f0f0f0">SOFTWARE DEVELOPMENT TOOLS AND ENVIRONMENTS</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">2</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#f0f0f0">3 (2-2)</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">ปฏิบัติ </td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">อ. 23 ม.ค. 24&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">13:30-16:30 น.</td>
+              <td></td>
+                              <td align="center"  bgcolor="#f0f0f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4006016328%40SOFTWARE+DEVELOPMENT+TOOLS+AND+ENVIRONMENTS%40223%40M+04%401%401">IT:M 04:A1</a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#fef8f0">6</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">06016389</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#fef8f0">SPECIAL TOPICS IN INFORMATION TECHNOLOGY 1</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">1</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#fef8f0">3 (3-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0"></td>
+              <td></td>
+                            <td align="center" valign="top" bgcolor="#fef8f0"><br>สอบในช่วงสอบปลายภาค (ในห้องสอบ)<br>Examination during the final exam (in the examination room)<hr><br><br></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#f0f0f0">7</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">90302003</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#f0f0f0">HUMAN RELATIONS</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">501</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#f0f0f0">3 (3-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0">จัดสอบเอง&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#f0f0f0"></td>
+              <td></td>
+                              <td align="center"  bgcolor="#f0f0f0"><a target="_blank" href="report_examtable_seat.php?data=%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%40%E0%B7%A4%E2%B9%E2%C5%C2%D5%CA%D2%C3%CA%B9%E0%B7%C8%402566%402%4065010500%40%B9%D2%C2%E0%A2%C1%B0%D4%B5%D4%26nbsp%3B%CB%C7%D1%A7%B7%C3%D1%BE%C2%EC%B7%C7%D5%4090302003%40HUMAN+RELATIONS%40223%40M+04%401%40"></a></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+
+            <tr>
+              <td height="20" align="center"  bgcolor="#fef8f0">8</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">96642111</td>
+              <td></td>
+              <td height="22" align="left"  bgcolor="#fef8f0">FUN WITH CODING</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">901</td>
+			  <td></td>
+			  <td align="center"  bgcolor="#fef8f0">3 (3-0)</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">ทฤษฎี </td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0">&nbsp;</td>
+              <td></td>
+              <td align="center"  bgcolor="#fef8f0"></td>
+              <td></td>
+                            <td align="center" valign="top" bgcolor="#fef8f0"><br>สอบในช่วงสอบปลายภาค (ในห้องสอบ)<br>Examination during the final exam (in the examination room)<hr><br><br></td>
+               <!--list($faculty_name,$dept_name,$curr2_tname,$year,$semester,$student_id,$student_name,$subject_id,$subject_ename,$building_no,$room_no,$col_seat,$row_seat)-->
+            </tr>
+
+            <tr style="background-color: #999;">
+              <td height="3"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+
+			  
+			
+
+    </table></td>
+
+  </tr>
+</TBODY>
+</TABLE>
+</form>
+</center>
+</body>
+</html>
+
+
+<!--
+fixture : exam-mega.html
+สร้างจาก : exam-table-2566-2-M.html (corpus เก็บเมื่อ 2026-09-02T21:44:57.753Z)
+redact แล้ว : รหัสและชื่อนักศึกษาเป็นค่าสมมติ
+fidelity ล้วน : ไม่มีการแต่งเพิ่มเลย
+หน้าจริงหน้านี้มีครบทุกเคสอยู่แล้ว : จัดสอบเอง, ไม่มีเวลาสอบ,
+ประเภทสอบรวม A/B และวันที่มีหลายวิชา (rowspan)
+-->

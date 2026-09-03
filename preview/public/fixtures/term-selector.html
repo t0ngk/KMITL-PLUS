@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>www.reg.kmitl.ac.th</title>
+<META http-equiv=Content-Language content=th>
+<META http-equiv=Content-Type content="text/html; charset=tis-620">
+<LINK href="../css/registrar.css" type="text/css" rel="stylesheet">
+<SCRIPT language=JavaScript src="../scripts/allscript.js"></SCRIPT>
+<script language="javascript" src="../js/jquery-1.7.2.min.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+function RefreshEdit()
+{
+	window.status	= "โปรดรอสักครู่...ขณะนี้โปรแกรมกำลังทำการสืบค้นข้อมูลอยู่...";
+	document.edit.action	= "report_studytable.php";
+	document.edit.submit();
+}
+function Go2Edit(Command)
+{
+	document.edit.action	= "report_studytable_show.php";
+	document.edit.command.value	= Command;
+	document.edit.submit();
+}
+
+function showExam()
+{
+	$('#edit').attr('target', '_blank');
+	$('#edit').submit();
+	$('#edit').attr('target', '_self');
+}
+</script>
+</head>
+<body bgColor="#ffffff" leftMargin="0" topMargin="0" marginheight="0" marginwidth="0">
+<center>
+<form name="edit"  id="edit" method="post" action="../u_student/report_studytable_show.php" target="_self" enctype="multipart/form-data">
+<input type="hidden" name="command" value="">
+<table cellspacing="0" cellpadding="0" width="480" border="0">
+	<tbody>
+  <TR>
+    <TD height="10"></TD>
+  </TR>
+  <TR>
+    <TD align="center" vAlign=middle><a href="../index.php"><img src="images/u_student.jpg" alt="กลับไปหน้าแรก" width="480" height="64" border="0"></a></TD>
+  </TR>
+  <tr>
+    <td height="5" align="center" valign="middle"><IMG src="../images/hor_line.jpg" width=480 height=1></td>
+  </tr>
+  <TR>
+    <TD height="15" align="center">&nbsp;</TD>
+  </TR>
+  <TR>
+    <TD height=21 align="center" background="../images/label_m21.jpg"><strong>ตารางเรียน</strong></TD>
+  </TR>
+  <TR>
+    <TD height=5 align="left" bgcolor="#f5f5f5"></TD>
+  </TR>
+  <tr>
+    <td align="left" valign="middle">
+			<table width="480" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="220" height="1"></td>
+					<td width="*" height="1"></td>
+				</tr>
+				<tr>
+					<td height="20" align="right" valign="middle" background="../images/horline_350.jpg">ปีการศึกษา&nbsp;</td>
+					<td valign="middle" bgcolor="#f5f5f5" 1align="left">&nbsp;<select name='year' onchange='return RefreshEdit();' style='width:64px' id='year'><option value='2567'>2567</option><option value='2566'>2566</option><option value='2565'>2565</option><option value='2564'>2564</option></select></td>
+				</tr>
+				<tr>
+					<td height="1" colspan="2"></td>
+				</tr>
+				<tr bgcolor="#f5f5f5">
+					<td height="5" colspan="2"></td>
+				</tr>
+				<tr>
+					<td height="1" colspan="2"></td>
+				</tr>
+				<tr>
+					<td height="20" align="right" valign="middle" background="../images/horline_350.jpg">ภาคการศึกษา&nbsp;</td>
+					<td valign="middle" bgcolor="#f5f5f5" 1align="left">&nbsp;<select name='semester' style='width:64px'  id='semester' ><option value='2'>2</option><option value='1'>1</option></select></td>
+				</tr>
+				<tr>
+					<td height="1" colspan="2"></td>
+				</tr>
+			</table>
+	 </td>
+  </tr>
+  <TR>
+    <TD height=5 align="left" bgcolor="#f5f5f5"></TD>
+  </TR>
+  <TR>
+    <TD align="left"><input type="button" name="watch" value=" ดูตารางเรียน " title="เรียกดูตารางเรียนของนักศึกษาส่วนบุคคล" onClick="showExam()" ></TD>
+  </TR>
+</TBODY>
+</TABLE>
+</form>
+</center>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KMITL + preview</title>
+    <!-- หน้ารวมลิงก์ของ dev harness ไม่ใช่ product surface
+         จงใจไม่ใช้ token จาก DESIGN.md และไม่ประกาศสีเป็นค่าคงที่ -->
+    <style>
+      body {
+        font-family: ui-monospace, monospace;
+        line-height: 1.7;
+        margin: 0;
+        padding: 40px 24px;
+        display: grid;
+        justify-content: center;
+      }
+      main { max-width: 46rem; }
+      h1 { margin: 0 0 4px; }
+      p { margin: 0 0 20px; opacity: 0.75; }
+      ul { list-style: none; padding: 0; margin: 0 0 28px; }
+      li { border: 1px solid; border-radius: 8px; margin-bottom: 8px; }
+      a { display: block; padding: 10px 14px; text-decoration: none; color: inherit; }
+      a:hover { text-decoration: underline; }
+      code { opacity: 0.7; }
+      small { display: block; opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>KMITL + preview harness</h1>
+      <p>
+        หน้าจริงถูก mount ด้วย fixture ที่ redact แล้ว โดยเดินผ่าน scraper ตัวจริง
+        ไม่ใช่ป้อนข้อมูลที่ scrape เสร็จแล้วเข้าไปตรง ๆ
+      </p>
+
+      <ul>
+        <li>
+          <a href="./app.html?page=study">
+            ตารางเรียน <code>?page=study</code>
+            <small>study-table-mega — ครบทุกวัน ขอบ 08:00/20:00 คาบ 15 นาที และวิชาซ้อนเวลา</small>
+          </a>
+        </li>
+        <li>
+          <a href="./app.html?page=exam">
+            ตารางสอบ <code>?page=exam</code>
+            <small>exam-mega — หน้าจริงล้วน มีจัดสอบเอง ไม่มีเวลาสอบ และประเภทสอบรวม A/B</small>
+          </a>
+        </li>
+        <li>
+          <a href="./sweep.html">
+            sweep <code>/sweep.html</code>
+            <small>รัน scraper ทับ corpus และ fixtures ทุกไฟล์ แล้วสรุปผลเป็นตาราง</small>
+          </a>
+        </li>
+      </ul>
+
+      <p>
+        เทอมว่าง (empty state) กดถึงได้จากหน้าตารางเรียน : เลือกภาคเรียนที่ 2
+        จากแถบด้านล่าง <code>regStub</code> จะคืน <code>study-table-empty</code> ให้
+      </p>
+      <p>
+        <code>preview/public/corpus/</code> เป็นหน้า reg จริงที่ยังไม่ redact และถูก gitignore ไว้
+        ส่วนที่ commit ได้คือ <code>preview/public/fixtures/</code> เท่านั้น
+      </p>
+    </main>
+  </body>
+</html>
