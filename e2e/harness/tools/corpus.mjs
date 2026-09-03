@@ -1,8 +1,8 @@
-// แตกไฟล์ JSON ที่ได้จาก preview/capture.js ออกเป็นหน้า HTML ราย (ปี, ภาคเรียน)
+// แตกไฟล์ JSON ที่ได้จาก tools/capture.js ออกเป็นหน้า HTML ราย (ปี, ภาคเรียน)
 //
-//   node preview/corpus.mjs ~/Desktop/kmitl-corpus-<timestamp>.json
+//   node e2e/harness/tools/corpus.mjs ~/Desktop/kmitl-corpus-<timestamp>.json
 //
-// เขียนลง preview/public/corpus/ ซึ่งถูก gitignore ไว้ — ยังไม่ redact ห้าม commit
+// เขียนลง e2e/harness/public/corpus/ ซึ่งถูก gitignore ไว้ — ยังไม่ redact ห้าม commit
 // สคริปต์นี้เป็นเครื่องมือ dev ไม่ได้ถูก import ที่ไหนและไม่ได้ bundle เข้า extension
 //
 // เขียนเป็น byte ดิบล้วน ๆ ไม่ decode ระหว่างทาง : หน้า reg เป็น windows-874
@@ -21,11 +21,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CORPUS_DIR = fileURLToPath(new URL("./public/corpus/", import.meta.url));
+const CORPUS_DIR = fileURLToPath(new URL("../public/corpus/", import.meta.url));
 
 const source = process.argv[2];
 if (!source) {
-  console.error("ใช้: node preview/corpus.mjs <ไฟล์ json จาก capture.js>");
+  console.error("ใช้: node e2e/harness/tools/corpus.mjs <ไฟล์ json จาก capture.js>");
   process.exit(1);
 }
 

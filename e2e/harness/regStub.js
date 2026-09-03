@@ -1,4 +1,4 @@
-// stub ของ services/reg สำหรับ preview harness เท่านั้น — ไม่ได้อยู่ในโค้ดที่ ship
+// stub ของ services/reg สำหรับ harness เท่านั้น — ไม่ได้อยู่ในโค้ดที่ ship
 // vite.config.js ของ preview alias "../../services/reg" มาที่ไฟล์นี้
 //
 // คืน Document จาก fixture จริง (ไม่ใช่หน้าเปล่า) การสลับเทอมในหน้า preview
@@ -8,7 +8,7 @@
 // ภาค 2 จึงต้องคืน mega ส่วนภาค 1 คืนเทอมว่าง ไม่งั้นหน้าจะ mount ด้วย mega
 // แล้วอ้างว่าเป็นภาค 2 ทั้งที่ regStub บอกว่าภาค 2 ว่าง — ขัดกันเอง
 
-import { readTermOptions } from "../src/services/reg";
+import { readTermOptions } from "../../src/services/reg";
 import { breakTermCell, FIXTURES, loadFixture } from "./loadFixture";
 
 

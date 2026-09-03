@@ -1,7 +1,7 @@
 // สร้าง fixture ที่ commit ได้จาก corpus : redact ข้อมูลส่วนตัว + ต่อแถวเคสที่ของจริงไม่มี
 //
-//   node preview/redact.mjs scan
-//   node preview/redact.mjs build --replace "<ของจริง>=<ของปลอม>" [--replace ...]
+//   node e2e/harness/tools/redact.mjs scan
+//   node e2e/harness/tools/redact.mjs build --replace "<ของจริง>=<ของปลอม>" [--replace ...]
 //
 // `scan` จะบอกว่ามีอะไรที่ดูเหมือนข้อมูลส่วนตัวอยู่ตรงไหนบ้าง ให้เอาไปกรอก --replace
 // ค่าจริงไม่เคยถูกเขียนลงไฟล์นี้ : ไฟล์นี้ถูก commit ส่วนค่าจริงมาจาก argv บนเครื่อง dev
@@ -14,8 +14,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CORPUS_DIR = fileURLToPath(new URL("./public/corpus/", import.meta.url));
-const FIXTURE_DIR = fileURLToPath(new URL("./public/fixtures/", import.meta.url));
+const CORPUS_DIR = fileURLToPath(new URL("../public/corpus/", import.meta.url));
+const FIXTURE_DIR = fileURLToPath(new URL("../public/fixtures/", import.meta.url));
 
 // ---------------------------------------------------------------- encoding
 
@@ -125,7 +125,7 @@ function scan() {
     console.log(`  ${value}   x${count}`);
   }
   console.log(
-    '\nเอาไปใช้ต่อ :\n  node preview/redact.mjs build --replace "<ของจริง>=<ของปลอม>" --replace ...',
+    '\nเอาไปใช้ต่อ :\n  node e2e/harness/tools/redact.mjs build --replace "<ของจริง>=<ของปลอม>" --replace ...',
   );
 }
 
@@ -213,7 +213,7 @@ const STAMP = (lines) => `\n<!--\n${lines.join("\n")}\n-->\n`;
 function build(argv) {
   const replacements = parseReplacements(argv);
   if (replacements.length === 0) {
-    throw new Error('ต้องมี --replace อย่างน้อยหนึ่งคู่ (ดู `node preview/redact.mjs scan`)');
+    throw new Error('ต้องมี --replace อย่างน้อยหนึ่งคู่ (ดู `node e2e/harness/tools/redact.mjs scan`)');
   }
 
   const manifest = JSON.parse(
@@ -336,7 +336,7 @@ try {
   if (command === "scan") scan();
   else if (command === "build") build(argv);
   else {
-    console.error("ใช้: node preview/redact.mjs scan | build --replace \"จริง=ปลอม\" ...");
+    console.error("ใช้: node e2e/harness/tools/redact.mjs scan | build --replace \"จริง=ปลอม\" ...");
     process.exit(1);
   }
 } catch (error) {

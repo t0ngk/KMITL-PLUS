@@ -1,4 +1,4 @@
-// preview harness : mount หน้าจริงด้วย fixture ที่ redact แล้ว
+// harness : mount หน้าจริงด้วย fixture ที่ redact แล้ว
 //
 //   /?page=study  ตารางเรียน (ค่าเริ่มต้น)
 //   /?page=exam   ตารางสอบ
@@ -11,13 +11,13 @@
 
 import { mount } from "svelte";
 
-import "./preview.css";
-import "../src/assets/fonts.css";
-import ExamSchedule from "../src/features/exam-schedule/ExamSchedule.svelte";
-import StudyTable from "../src/features/study-table/StudyTable.svelte";
-import { scrapeExamPage } from "../src/features/exam-schedule/scraper";
-import { scrapeStudyTablePage } from "../src/features/study-table/scraper";
-import { captureRegistrarStyles } from "../src/shared/registrarStyles";
+import "./harness.css";
+import "../../src/assets/fonts.css";
+import ExamSchedule from "../../src/features/exam-schedule/ExamSchedule.svelte";
+import StudyTable from "../../src/features/study-table/StudyTable.svelte";
+import { scrapeExamPage } from "../../src/features/exam-schedule/scraper";
+import { scrapeStudyTablePage } from "../../src/features/study-table/scraper";
+import { captureRegistrarStyles } from "../../src/shared/registrarStyles";
 import {
   breakTermCell,
   FIXTURES,

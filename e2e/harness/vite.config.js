@@ -4,7 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 
-// preview harness เท่านั้น : mount หน้าตารางเรียนด้วยข้อมูลตัวอย่างเพื่อถ่ายภาพตรวจงาน
+// harness ของชุด e2e : mount หน้าจริงด้วย fixture ที่ redact แล้ว
+// รันเองก็ได้ (pnpm exec vite --config e2e/harness/vite.config.js) เพื่อดูด้วยตา
 export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
   plugins: [svelte(), tailwindcss()],

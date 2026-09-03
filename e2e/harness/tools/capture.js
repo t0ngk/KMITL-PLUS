@@ -4,14 +4,14 @@
 //   1. ล็อกอิน reg แล้วเปิด https://www.reg.kmitl.ac.th/u_student/report_studytable.php
 //   2. เปิด DevTools -> Console -> วางไฟล์นี้ทั้งไฟล์ -> Enter
 //   3. รอจนขึ้น "เสร็จ" แล้วจะมีไฟล์ kmitl-corpus-<timestamp>.json โหลดลงมา
-//   4. เอาไฟล์นั้นไปแตกด้วย `node preview/corpus.mjs <ไฟล์>` (task 2.3)
+//   4. เอาไฟล์นั้นไปแตกด้วย `node e2e/harness/tools/corpus.mjs <ไฟล์>` (task 2.3)
 //
 // ไฟล์นี้ไม่ได้ถูก import ที่ไหน และไม่ได้ถูก bundle เข้า extension — เป็นสคริปต์วางมือ
 //
 // สิ่งที่ต้องระวัง :
 // - เก็บเป็น byte ดิบ (base64) ไม่ decode ตรงนี้ เพราะหน้า reg เป็น windows-874
 //   ถ้าปล่อยให้ browser decode เป็น UTF-8 ตั้งแต่ตอนเก็บ ภาษาไทยจะเพี้ยนติดไปในไฟล์
-// - JSON ที่ได้ "ยังไม่ redact" มีรหัส/ชื่อจริง ห้าม commit (preview/corpus/ ถูก gitignore ไว้แล้ว)
+// - JSON ที่ได้ "ยังไม่ redact" มีรหัส/ชื่อจริง ห้าม commit (e2e/harness/public/corpus/ ถูก gitignore ไว้แล้ว)
 // - ยิงทีละ request พร้อมหน่วงเวลา : reg เป็นระบบเก่า ไม่ควรยิงขนาน 40 request รวดเดียว
 
 /* eslint-env browser */

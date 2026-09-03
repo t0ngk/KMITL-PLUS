@@ -30,7 +30,7 @@ export default defineConfig({
   // preview server ตัวเดียวใช้ร่วมกัน : project extension ไม่ได้ใช้ แต่ค่าใช้จ่าย
   // ในการปล่อยให้ขึ้นน้อยกว่าการแยก config สองไฟล์แล้วต้องดูแลสองที่
   webServer: {
-    command: `node node_modules/vite/bin/vite.js --config preview/vite.config.js --port ${PREVIEW_PORT} --strictPort`,
+    command: `node node_modules/vite/bin/vite.js --config e2e/harness/vite.config.js --port ${PREVIEW_PORT} --strictPort`,
     url: `http://localhost:${PREVIEW_PORT}/app.html`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

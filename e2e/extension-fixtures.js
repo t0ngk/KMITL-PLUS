@@ -16,7 +16,7 @@ export { expect };
 
 const dir = (relative) => fileURLToPath(new URL(relative, import.meta.url));
 const EXTENSION_DIR = dir("../.output/chrome-mv3");
-const FIXTURE_DIR = dir("../preview/public/fixtures");
+const FIXTURE_DIR = dir("./harness/public/fixtures");
 const profileDir = (browserName) => dir(`./.chrome-profile-${browserName}`);
 
 const readFixture = (name) => fs.readFileSync(path.join(FIXTURE_DIR, name));
@@ -69,7 +69,7 @@ export const test = base.extend({
 
         if (url.includes("report_studytable_show.php")) {
           const semester = /semester=(\d)/.exec(body)?.[1];
-          // mega บอกหัวตารางว่าเป็นภาค 2 -> ภาค 1 คือเทอมว่าง (ตรงกับ preview/regStub.js)
+          // mega บอกหัวตารางว่าเป็นภาค 2 -> ภาค 1 คือเทอมว่าง (ตรงกับ e2e/harness/regStub.js)
           return html(
             readFixture(
               semester === "1"

@@ -5,7 +5,7 @@
 // ตรงกับ fetchDocument ใน services/reg.js ทุกขั้น ถ้าลัดขั้นไหน
 // สิ่งที่ preview ทดสอบก็ไม่ใช่สิ่งที่ extension ทำ
 //
-// fixture อยู่ใต้ preview/public/ เท่านั้น : ไฟล์ .html ที่อื่นใน root ของ vite
+// fixture อยู่ใต้ e2e/harness/public/ เท่านั้น : ไฟล์ .html ที่อื่นใน root ของ vite
 // จะถูก HTML pipeline อ่านเป็น UTF-8 แล้วเสิร์ฟใหม่ ไทยกลายเป็น U+FFFD ทั้งหน้า
 
 const REGISTRAR_ENCODING = "windows-874";
@@ -51,7 +51,7 @@ export async function loadFixture(name) {
   if (mangled > 0) {
     throw new Error(
       `fixture ${name} ถูกแปลง encoding ระหว่างทาง (พบ U+FFFD ${mangled} ตัว) — ` +
-        "ไฟล์ต้องอยู่ใต้ preview/public/ ถึงจะถูกเสิร์ฟดิบ",
+        "ไฟล์ต้องอยู่ใต้ e2e/harness/public/ ถึงจะถูกเสิร์ฟดิบ",
     );
   }
 

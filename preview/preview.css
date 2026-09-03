@@ -1,3 +1,0 @@
-/* preview harness เท่านั้น : root ของ vite คือ preview/ ต้องบอก Tailwind ให้สแกน src/ ด้วย */
-@import "../src/assets/styles.css";
-@source "../src";

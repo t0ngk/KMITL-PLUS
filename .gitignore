@@ -20,7 +20,7 @@ dist-ssr
 # ห้าม commit เด็ดขาด — ข้อมูลส่วนตัวที่หลุดเข้า history ลบทีหลังไม่ได้
 # ที่ commit ได้คือ fixtures ที่ redact แล้วเท่านั้น
 # (อยู่ใต้ public/ เพราะ vite แปลง .html ที่อื่นจน byte windows-874 พัง)
-preview/public/corpus/
+e2e/harness/public/corpus/
 
 # Editor directories and files
 .vscode/*

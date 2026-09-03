@@ -13,7 +13,7 @@ context: |
     ?inline and injects it as a <style> into document.head; if the woff2 files stop
     being data URIs, PNG export silently loses the Prompt font.
   - publicDir resolves from the project ROOT, not srcDir. Icons belong in public/.
-  - preview/ is a separate Vite root with its own config; WXT does not touch it.
+  - e2e/harness/ is a separate Vite root with its own config; WXT does not touch it.
 
   Pages & endpoints (all same-origin under */u_student/ on *.reg.kmitl.ac.th):
   - report_studytable_show.php: study table; accepts POST command=&year=<BE>&semester=<1|2>;
@@ -62,21 +62,22 @@ context: |
     อย่างหลังคือที่เดียวที่ทดสอบ manifest, การ inject content script และ CSS ของ reg เอง
   - `pnpm e2e --project=preview` คือลูปเร็ว, `--grep "<ชื่อ scenario>"` รันทีละอัน
   - ต้องเขียวทั้ง `pnpm e2e` และ `pnpm e2e:coverage` ก่อน archive change
-  - เดิมเป็น script มือสองไฟล์ (preview/walk.mjs, preview/extwalk.mjs) และ config นี้
+  - เดิมเป็น script มือสองไฟล์ (preview/walk.mjs, preview/extwalk.mjs — ทั้งคู่ถูกลบแล้ว) และ config นี้
     เคยเขียนว่า "no test framework" — กฎนั้นเขียนตอนมี 13 assertion ตอนนี้ 57 test (45 ผูกสเปก + 12 เฉพาะ extension)
     ต้นทุนของการไม่มี runner (ตกแล้วทั้ง run ตายไม่พิมพ์อะไร, boolean ก้อนเดียวไม่บอกว่า
     เงื่อนไขไหนพัง, ไม่มี trace/retry/grep) แซงต้นทุนของ dependency ไปแล้ว
   - query ของ preview เป็นส่วนหนึ่งของสัญญาชุดเทสต์ ไม่ใช่ของเล่น : ?slow= ?fail=
     ?terms= ?header=broken ?term= — สถานะกำลังโหลด, ล้มเหลว, หน้าเลือกเทอมพัง และ
     "ไม่รู้ว่าดูเทอมไหน" ไม่มีทางเกิดกับ fixture ที่ตอบทันทีถ้าไม่มีสิ่งเหล่านี้
-  preview/ is a fixture-driven harness (separate Vite root, port ~5199).
+  e2e/harness/ is the fixture-driven app the suite runs against (separate Vite root).
+  รันเองเพื่อดูด้วยตาได้ : pnpm exec vite --config e2e/harness/vite.config.js
   /sweep.html runs the real scrapers over the local corpus plus committed fixtures;
-  /app.html?page=study|exam mounts the real pages. preview/public/corpus/ is real
-  registrar HTML and is gitignored; preview/public/fixtures/ is redacted and committed.
+  /app.html?page=study|exam mounts the real pages. e2e/harness/public/corpus/ is real
+  registrar HTML and is gitignored; e2e/harness/public/fixtures/ is redacted and committed.
   scenario ส่วนใหญ่ไม่ต้องใช้ session ที่ล็อกอินแล้ว — anything about the
   registrar's own CSS still does. The exam mid/final switch used to need one too;
   since exam-inline-term-switch it is a fetch like the study table's, so the stub
-  covers it. preview/regStub.js takes ?fail= and ?slow= to reach the failure and
+  covers it. e2e/harness/regStub.js takes ?fail= and ?slow= to reach the failure and
   loading states, which a fixture answering instantly otherwise never shows.
 
   UI primitives: dock widgets come from bits-ui (Select for the term pickers, Popover
@@ -108,7 +109,7 @@ context: |
     ถ้าอ่านลิสต์ไหนไม่ได้ให้ซ่อน picker ไปเลย. reg เสนอแค่ภาค 2 กับ 1 ไม่มีภาคฤดูร้อน
     ถึงแม้ server จะตอบ semester=3 ก็ตาม (corpus มีหน้าภาค 3 ทุกปีแต่ว่างหมด)
   - fixture term-selector.html คือหน้านั้นตัวจริง (ไม่มี PII จึง commit ได้) ทั้ง
-    preview/regStub.js และ e2e/extension-fixtures.js ต้องเสิร์ฟไฟล์นี้ ห้ามแต่งลิสต์เอง —
+    e2e/harness/regStub.js และ e2e/extension-fixtures.js ต้องเสิร์ฟไฟล์นี้ ห้ามแต่งลิสต์เอง —
     ตอนที่แต่งเอง walk ผ่านทั้งที่หน้าจริงเสนอภาคเรียนไม่เหมือน stub ทั้งสองตัว
   - preview รับ ?header=broken (จำลองหน้าที่อ่านเทอมไม่ออก) และ ?term=<ภาค>/<ปี>
     (จำลองการเปิดหน้ามาบนเทอมอื่น) เพราะ fixture ที่ commit ไว้เป็นภาค 2/2566 อย่างเดียว

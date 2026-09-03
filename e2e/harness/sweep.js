@@ -1,7 +1,7 @@
-// preview harness เท่านั้น : รัน scraper ตัวจริงทับทุกไฟล์ใน preview/corpus/
+// harness เท่านั้น : รัน scraper ตัวจริงทับทุกไฟล์ใน public/corpus/
 // แล้วสรุปผลออกมาเป็นตารางให้ดูด้วยตา (openspec preview-harness-fixtures task 2.4)
 //
-// เปิดที่ http://localhost:<port>/sweep.html หลังแตก corpus ด้วย preview/corpus.mjs แล้ว
+// เปิดที่ http://localhost:<port>/sweep.html หลังแตก corpus ด้วย tools/corpus.mjs แล้ว
 //
 // จุดสำคัญ : path เข้า scraper ต้องเหมือน services/reg.js ทุกขั้น
 // arrayBuffer -> TextDecoder("windows-874") -> DOMParser -> scrape
@@ -12,8 +12,8 @@
 // ไทยกลายเป็น U+FFFD ทั้งหน้า (วัดแล้ว 14764 -> 15300 bytes, U+FFFD 71 ตัว)
 // ถ้า sweep อ่านของที่ผ่าน transform ผลจะออกมาเป็น "scrape ไม่ได้" ทั้ง ๆ ที่ scraper ปกติ
 
-import { scrapeExamPage } from "../src/features/exam-schedule/scraper";
-import { scrapeStudyTablePage } from "../src/features/study-table/scraper";
+import { scrapeExamPage } from "../../src/features/exam-schedule/scraper";
+import { scrapeStudyTablePage } from "../../src/features/study-table/scraper";
 
 const REGISTRAR_ENCODING = "windows-874";
 
