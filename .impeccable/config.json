@@ -1,0 +1,15 @@
+{
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "32px",
+        "createdAt": "2026-09-03T04:45:10.178Z",
+        "reason": "spike measurement probe in preview/spike-shadow.js: off-screen span sized large enough that a Prompt-vs-fallback width difference is unambiguous; not a UI surface"
+      }
+    ]
+  }
+}

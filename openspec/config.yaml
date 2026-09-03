@@ -1,0 +1,163 @@
+schema: spec-driven
+
+context: |
+  KMITL+ — Chrome MV3 extension (Svelte 5 + WXT + Tailwind 4, plain JS, pnpm)
+  that replaces KMITL registrar pages with redesigned views via content scripts.
+
+  Build: WXT (on Vite). Entrypoints live in src/entrypoints/*.content.js and carry
+  their own `matches`; there is no hand-written manifest.json. Output is .output/,
+  not dist/. WXT's auto-imports are off — write every import explicitly.
+  - Tailwind has no WXT module: pass @tailwindcss/vite through the `vite` hook by
+    hand. Without it the build succeeds and ships unexpanded @apply.
+  - build.assetsInlineLimit must stay at 32768. boot.js imports fonts.css with
+    ?inline and injects it as a <style> into document.head; if the woff2 files stop
+    being data URIs, PNG export silently loses the Prompt font.
+  - publicDir resolves from the project ROOT, not srcDir. Icons belong in public/.
+  - preview/ is a separate Vite root with its own config; WXT does not touch it.
+
+  Pages & endpoints (all same-origin under */u_student/ on *.reg.kmitl.ac.th):
+  - report_studytable_show.php: study table; accepts POST command=&year=<BE>&semester=<1|2>;
+    works for graduated accounts (session cookie), old terms included.
+  - report_studytable.php: term selector; select#year lists the student's real years (BE).
+  - report_examtable_show.php: exam table; POST year/semester/student_id/mid_or_final=<M|F>.
+
+  Hard-won facts (verified live):
+  - Responses are windows-874 (TIS-620). fetch().text() mojibakes Thai; use
+    arrayBuffer() + TextDecoder("windows-874") + DOMParser.
+  - Study table year values are Buddhist era (2567). Exam DATE strings use Thai
+    month names with two-digit GREGORIAN years ("พ. 8 พ.ย. 23" = 2023-11-08).
+  - Exam date field may be "จัดสอบเอง" (self-arranged) instead of a date.
+  - Scraping is childNodes-index based; guards must return null/[] on sparse pages
+    (blank-page crashes otherwise).
+  - Svelte components are legacy-mode unless stated; legacy static dependency
+    analysis misses closure reads in templates (caused a real grid-not-updating bug) —
+    prefer runes mode for new/refactored components.
+  - @property, like @font-face, only registers at DOCUMENT level. Declared inside a
+    shadow root it is ignored, so Tailwind 4's --tw-* initial values never resolve and
+    every border utility degrades to none — on screen, not just in exports. Any move to
+    shadow-root mounting must hoist both at-rules to document.head.
+  - Vite runs .html files under its root through the HTML pipeline, decoding them as
+    UTF-8. Saved windows-874 registrar pages must live under a publicDir to survive.
+  - css/registrar.css is UNLAYERED and styles bare elements (BODY TD SELECT INPUT A).
+    Tailwind 4 utilities sit in @layer utilities, and unlayered beats layered whatever
+    the specificity, so no class can out-rank it. shared/registrarStyles.js therefore
+    TOGGLES it by view mode (off for the redesign, on for the old-design view) instead
+    of deleting it — the old-design view is the registrar's own markup and needs its
+    stylesheet back to look like the real page. Never reintroduce styling for
+    .kmitl-table: that subtree is styled by registrar.css, not by us.
+  - The file starts with a literal <STYLE type=text/css> line; CSS error recovery eats
+    it together with the BODY rule that follows, so TD is the first rule that applies.
+    Keep the fixture byte-for-byte or that behaviour changes.
+
+  Verification: e2e/ เป็นชุด @playwright/test — **1 capability = 1 ไฟล์, 1 scenario =
+  1 test, ชื่อ test ตรงกับ #### Scenario: ตัวอักษรต่อตัวอักษร** ความตรงนั้นไม่ใช่
+  ความสวยงาม มันคือสิ่งที่ `pnpm e2e:coverage` ตรวจ (อ่านสเปก เทียบชื่อ test แล้ว
+  exit non-zero ถ้ามี scenario ไหนไม่มีเทสต์) ถามทางเดียว — test ที่ไม่มี scenario
+  ไม่ถือว่าผิด เพราะ e2e/extension.spec.js ตรวจ manifest/ฟอนต์/CSS bleed ซึ่งไม่ใช่
+  พฤติกรรมในสเปก **ไม่มีรายการยกเว้นและห้ามเพิ่ม** : allowlist คือที่ที่การตรวจแบบนี้
+  ตายเสมอ ถ้ามี scenario ที่เดิน offline ไม่ได้ นั่นคือคำถามเชิงออกแบบ ตอบที่ design
+  ของ change ไม่ใช่เติมลิสต์.
+  - `pnpm e2e` สอง project : preview (เร็ว ไม่ต้อง build) และ extension (ต้อง
+    pnpm build ก่อน โหลด extension เข้า Chrome จริง intercept ทุก request ของ reg)
+    อย่างหลังคือที่เดียวที่ทดสอบ manifest, การ inject content script และ CSS ของ reg เอง
+  - `pnpm e2e --project=preview` คือลูปเร็ว, `--grep "<ชื่อ scenario>"` รันทีละอัน
+  - ต้องเขียวทั้ง `pnpm e2e` และ `pnpm e2e:coverage` ก่อน archive change
+  - เดิมเป็น script มือสองไฟล์ (preview/walk.mjs, preview/extwalk.mjs) และ config นี้
+    เคยเขียนว่า "no test framework" — กฎนั้นเขียนตอนมี 13 assertion ตอนนี้ 57 test (45 ผูกสเปก + 12 เฉพาะ extension)
+    ต้นทุนของการไม่มี runner (ตกแล้วทั้ง run ตายไม่พิมพ์อะไร, boolean ก้อนเดียวไม่บอกว่า
+    เงื่อนไขไหนพัง, ไม่มี trace/retry/grep) แซงต้นทุนของ dependency ไปแล้ว
+  - query ของ preview เป็นส่วนหนึ่งของสัญญาชุดเทสต์ ไม่ใช่ของเล่น : ?slow= ?fail=
+    ?terms= ?header=broken ?term= — สถานะกำลังโหลด, ล้มเหลว, หน้าเลือกเทอมพัง และ
+    "ไม่รู้ว่าดูเทอมไหน" ไม่มีทางเกิดกับ fixture ที่ตอบทันทีถ้าไม่มีสิ่งเหล่านี้
+  preview/ is a fixture-driven harness (separate Vite root, port ~5199).
+  /sweep.html runs the real scrapers over the local corpus plus committed fixtures;
+  /app.html?page=study|exam mounts the real pages. preview/public/corpus/ is real
+  registrar HTML and is gitignored; preview/public/fixtures/ is redacted and committed.
+  scenario ส่วนใหญ่ไม่ต้องใช้ session ที่ล็อกอินแล้ว — anything about the
+  registrar's own CSS still does. The exam mid/final switch used to need one too;
+  since exam-inline-term-switch it is a fetch like the study table's, so the stub
+  covers it. preview/regStub.js takes ?fail= and ?slow= to reach the failure and
+  loading states, which a fixture answering instantly otherwise never shows.
+
+  UI primitives: dock widgets come from bits-ui (Select for the term pickers, Popover
+  for the customize menu) — chosen because registrar.css names SELECT/INPUT at element
+  level, so a div-based widget removes the exposure instead of containing it. Portal
+  targets are pinned to "body" ON PURPOSE; a move to shadow-root mounting must change
+  them. shared/cn.js (clsx + tailwind-merge) is the class-merge convention: a component
+  owns its base classes and a caller's `class` prop wins on conflicts.
+  - เมนูปรับแต่งสีเป็น modal ทั้งกับคีย์บอร์ดและเมาส์ : bits-ui กัก focus ให้เอง แต่
+    ไม่มี prop ไหนกันคลิกทะลุได้ (interactOutsideBehavior คุมแค่ว่า "ปิดไหม" การปิดยิงที่
+    pointerup ส่วนปุ่มข้างล่างยิงที่ click ที่ตามมา) จึงมี div โปร่งใส z-[59] ใน Portal
+    ระหว่างเปิด และมันต้องสั่งปิดเอง เพราะอยู่ใน Portal bits-ui จึงนับว่าเป็น "ข้างใน"
+    **อย่าลบทิ้งโดยคิดว่าไลบรารีทำให้แล้ว** — ไม่ได้ทำ วัดมาแล้วสองรอบ
+  - tailwindcss-animated supplies animate-* utilities. They are FORBIDDEN inside the
+    snapdom capture frame (sheet, header, grid, blocks, exam table) — allowed only on
+    the dock, the popover and the option list. snapdom captures a mid-animation frame
+    as-is.
+  - หัวตารางของ reg คั่น label กับค่าด้วย &nbsp; (U+00A0) ตัวเดียว และคั่นคอลัมน์ด้วย
+    &nbsp; 3-5 ตัว ห้าม scrape ด้วยจำนวนช่องว่างที่ตายตัว — split("   ") แบบเดิมไม่เคย
+    แมตช์เลย ทำให้ year/major/studentName ว่างทุกหน้าอยู่นาน (\s ของ JS ครอบ U+00A0
+    อยู่แล้ว splitColumns จึงใช้ /\s{2,}/) การเทียบข้อความในการเดิน scenario ต้องยุบ
+    ช่องว่างก่อน ไม่งั้นเทียบกับ " " ธรรมดาแล้วไม่ตรงทั้งที่หน้าจอถูก
+  - picker ห้ามแสดงเทอมที่ยืนยันไม่ได้ ถ้าอ่านปี/ภาคเรียนจากหน้าไม่ออกให้โชว์ placeholder
+    และยังไม่ยิง fetch จนกว่าจะเลือกครบทั้งสองช่อง — เดิมมันตกไปที่ years[0] เงียบ ๆ
+    ป้ายเลยอ้างเทอมที่ไม่ได้แสดงอยู่ แล้วปีผิดนั้นยังถูกส่งไปทุกครั้งที่สลับภาคเรียนต่อจากนั้น
+    (คนละเรื่องกับ failure path ที่คืนสถานะดีอันก่อน — อันนั้นเคยแสดงจริง อันนี้ไม่เคย)
+  - รายการปี/ภาคเรียนอ่านจากหน้าเลือกเทอมของ reg (report_studytable.php มี select#year
+    และ select#semester) ห้าม hardcode และห้ามมีรายการสำรอง — เสนอเท่าที่ reg เสนอ
+    ถ้าอ่านลิสต์ไหนไม่ได้ให้ซ่อน picker ไปเลย. reg เสนอแค่ภาค 2 กับ 1 ไม่มีภาคฤดูร้อน
+    ถึงแม้ server จะตอบ semester=3 ก็ตาม (corpus มีหน้าภาค 3 ทุกปีแต่ว่างหมด)
+  - fixture term-selector.html คือหน้านั้นตัวจริง (ไม่มี PII จึง commit ได้) ทั้ง
+    preview/regStub.js และ e2e/extension-fixtures.js ต้องเสิร์ฟไฟล์นี้ ห้ามแต่งลิสต์เอง —
+    ตอนที่แต่งเอง walk ผ่านทั้งที่หน้าจริงเสนอภาคเรียนไม่เหมือน stub ทั้งสองตัว
+  - preview รับ ?header=broken (จำลองหน้าที่อ่านเทอมไม่ออก) และ ?term=<ภาค>/<ปี>
+    (จำลองการเปิดหน้ามาบนเทอมอื่น) เพราะ fixture ที่ commit ไว้เป็นภาค 2/2566 อย่างเดียว
+  - The exam round switcher is a segmented control inside the capture frame. It fetches
+    in place through services/reg.js fetchExamTable() and re-scrapes — it does NOT submit
+    a form; submitting navigates, and the flicker that caused lives in the window where
+    the document is torn down and our script is not running. The hidden <form> is still
+    in ExamHeader.svelte on purpose: it is the record of the field names reg wants and of
+    why student_id is sent empty. Do not "clean it up", and do not restore the submit.
+  - Both pages own their displayed term as state and refetch in place. The stored
+    original HTML behind "แบบเดิม" MUST be replaced on every successful fetch, or the
+    toggle shows a different term than the redesigned view does.
+  - Both pages share one dock (features/study-table/Controls.svelte); its pickers,
+    customize menu and switching/switchError status line are optional props.
+  - cva is deliberately NOT adopted yet; refactor-exam-ui decision 3 requires a third
+    button consumer first, and that is the unbuilt grades page.
+
+  Conventions: oxlint + anti-slop plugin (never suppress rules), remeda for data
+  transforms, date-fns for date math, snapdom for PNG export, no TypeScript.
+  Test runner: @playwright/test สำหรับ e2e เท่านั้น (ดู Verification ด้านบน) — ไม่มี
+  unit test และไม่ได้ตั้งใจจะมี สิ่งที่ตรวจคือพฤติกรรมที่นักศึกษาเห็น ไม่ใช่ฟังก์ชันย่อย
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

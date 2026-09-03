@@ -1,0 +1,94 @@
+# Tasks — migrate-to-wxt
+
+Reference: `proposal.md` (scope), `design.md` (how). No test framework — verification is a built extension loaded unpacked in Chrome, plus the `preview/` harness (`/sweep.html` and `/app.html`) which runs the real scrapers over 37 registrar corpus pages and 3 fixtures without a login.
+
+Ground rule for the whole change: **`src/{core,features,services,shared,assets}` and `preview/` must come out with no diff.** If either needs to change to satisfy WXT, stop and raise it rather than absorbing it here (design.md, Risks).
+
+## 1. Baseline before touching anything
+
+- [x] 1.1 Record the current build as the comparison baseline: run `pnpm build`, then save `dist/manifest.json`, the file list under `dist/`, and the byte size of the built CSS somewhere outside the repo. Verify the saved manifest contains `web_accessible_resources` with `use_dynamic_url: false` and a `*-loader-*.js` content-script entry — those two are what the migration is supposed to remove, so they must be on record as having existed.
+  - Recorded outside the repo: `manifest.before.json`, the `dist/` file list, and the build log. Confirmed present in the baseline: `web_accessible_resources` with `use_dynamic_url: false` exposing 3 chunks to `https://*.reg.kmitl.ac.th/*`, and both content-script entries pointing at `*-loader-*.js` shims. Both `matches` patterns and the four `icons` paths (`public/icon-*.png`) recorded for comparison. Built CSS: 25790 bytes.
+- [x] 1.2 Confirm the build inlines the font, and record the count. This is the check that catches a dropped `assetsInlineLimit` later.
+  - **Corrected while running it**: this task said "the built CSS". The fonts are not in the CSS. `core/boot.js` imports `fonts.css` with `?inline`, so the `@font-face` rules and their data URIs are compiled into a **JS chunk** — they have to be, because the whole point is injecting them as a `<style>` into `document.head` where snapdom can see them. Task 4.2 is corrected the same way.
+  - Baseline recorded: **6** `data:font/woff2` data URIs in `dist/assets/styles-CB15rR02.js` (thai/latin × weights 300/400/500), and **zero** external font references — no `.woff2` file anywhere in `dist/`, no `src: url(...)` in any `@font-face`. Both numbers matter: a dropped `assetsInlineLimit` would turn the 6 into 0 and produce emitted font files instead.
+- [x] 1.3 Run the preview harness against the current build's source (`/sweep.html`) and record the verdict line and the fixture-gap line. Verify `threw: 0`, `mangled: 0` and an empty gap list, so any post-migration difference is attributable to the migration.
+  - Baseline: `{"files":40,"threw":0,"mangled":0,"studyPages":14,"studyEmpty":5,"examPages":25,"examEmpty":8,"examNoDate":10,"examNoTime":25,"examMergedType":28,"studyUnknownDay":1}` with `SWEEP_FIXTURE_GAPS []`. Full coverage line saved alongside the manifest baseline; task 5.1 compares against it verbatim.
+
+## 2. Swap the toolchain
+
+- [x] 2.1 Add `wxt` and `@wxt-dev/module-svelte`, remove `@crxjs/vite-plugin`; verify `pnpm install` succeeds and that the installed `wxt` accepts the project's Vite 8 (its peer range is `^6.3.4 || ^7 || ^8`).
+  - Note the pnpm `minimumReleaseAge` policy in `pnpm-workspace.yaml`: if it blocks the new packages, add the exact versions to `minimumReleaseAgeExclude` in the same style as the existing oxlint entries rather than weakening the policy.
+  - Installed `wxt@0.21.4` + `@wxt-dev/module-svelte@2.0.5`, removed `@crxjs/vite-plugin@2.7.1`. Peers check out against what is actually installed: wxt wants `vite ^6.3.4 || ^7 || ^8` and the project has 8.2.2; the svelte module wants `svelte >=5` and the project has 5.57.0. `minimumReleaseAge` did not block either package, so no exclusion entry was needed. `pnpm-lock.yaml` now has zero `crxjs` references.
+- [x] 2.2 Write `wxt.config.js` with `srcDir: 'src'`, `modules: ['@wxt-dev/module-svelte']`, `imports: false` (design.md decision 4), the manifest fields carried over from `manifest.json` (`name`, `description`, `icons`), and `vite: () => ({ build: { assetsInlineLimit: 32768 } })` (decision 3). Verify `npx wxt prepare` completes without error.
+  - **Task ordering was wrong**: `wxt prepare` refuses to run with `No entrypoints found`, so it cannot pass before section 3 exists. Section 3 was done first, then this verified: `WXT 0.21.4 / Generating types... / Finished in 206 ms`.
+  - **The config needed something the design did not list: `@tailwindcss/vite`.** Svelte arrives through `@wxt-dev/module-svelte`, but there is no WXT module for Tailwind, so the plugin has to be passed through the `vite` hook by hand. The first build without it printed `[lightningcss minify] Unknown at rule: @apply` for every `.kmitl-table` rule and emitted a 22.50 kB stylesheet instead of ~25.8 kB — Tailwind simply was not running. Caught by the byte size, which is why 1.1 recorded it.
+- [x] 2.3 Replace the `dev` / `build` scripts with `wxt` / `wxt build`, add `zip`, add the `postinstall: wxt prepare` hook, and keep `lint` unchanged; verify `pnpm lint` still runs and `pnpm build` invokes WXT.
+  - Scripts are now `dev`, `dev:firefox`, `build`, `build:firefox`, `zip`, `lint` (unchanged), `postinstall`. The Firefox scripts exist because WXT gives them for free; publishing to Firefox remains out of scope per the proposal.
+  - `.gitignore` gained `.output` and `.wxt`. `dist` stays for the old path but is no longer produced.
+
+## 3. Move the entrypoints
+
+- [x] 3.1 Move `src/content/studyTable.js` to `src/entrypoints/studyTable.content.js`, wrapping the existing body in `defineContentScript({ matches: [...], main() {...} })` with the `matches` pattern taken verbatim from `manifest.json`; verify the imported `boot`, component, scraper and `../assets/styles.css` are unchanged apart from their relative paths.
+  - Diffed against the original: the only additions are the `matches` line and the `main()` wrapper. Import paths are unchanged — `entrypoints/` sits at the same depth as `content/` did, so every `../` still resolves.
+  - `defineContentScript` is imported explicitly from `wxt/utils/define-content-script` because auto-imports are off (decision 4).
+- [x] 3.2 Do the same for `src/content/examSchedule.js` → `src/entrypoints/examSchedule.content.js`, keeping its `prepare` callback (the one that removes the registrar's stylesheet) exactly as-is; verify `src/content/` is then empty and delete it.
+  - `prepare` moved verbatim, comment included. `src/content/` deleted.
+- [x] 3.3 ~~Move the four icons from `public/` to `src/public/`~~ — **the move was wrong and has been undone; the icons stay at `public/`.** Verify the built manifest's `icons` paths resolve to files that exist under the output directory.
+  - design.md decision 5 claimed WXT serves `<srcDir>/public`. It does not. WXT resolves `publicDir = path.resolve(root, config.publicDir ?? "public")` — relative to the **project root**, not `srcDir`. With the icons under `src/public/` the manifest still declared them but no icon file was emitted at all: a silently icon-less extension, exactly the failure the task was written to catch.
+  - Moving them back means `public/` is already WXT's default and no `publicDir` config is needed. The whole decision turned out to be unnecessary work justified by a wrong premise; design.md is annotated.
+  - Verified after the fix: all four `icon-*.png` are emitted at the output root and the manifest paths match them.
+- [x] 3.4 Delete `manifest.json`, `src/plugin/updateManifectPlugin.js` and the root `vite.config.js`; verify `src/plugin/` is empty and removed, that `preview/vite.config.js` still exists, and that nothing imports the deleted plugin.
+  - All three deleted, `src/plugin/` removed, `preview/vite.config.js` untouched, and no reference to the plugin remains anywhere in the repo.
+
+## 4. Verify the manifest is what the change is for
+
+- [x] 4.1 Build and inspect the generated manifest: verify `web_accessible_resources` is **absent entirely**, the content-script `js` entries point at real bundles rather than a `*-loader-*.js` shim, and both `matches` patterns are byte-identical to the ones recorded in 1.1.
+  - **`web_accessible_resources` is gone.** The key is simply not in the generated manifest — the extension no longer exposes any of its code to pages on `reg.kmitl.ac.th`, which was the whole point.
+  - `js` entries are `content-scripts/studyTable.js` and `content-scripts/examSchedule.js` — real bundles, no `-loader-` shim, no dynamic import indirection.
+  - Both `matches` compare equal to the 1.1 baseline, and `name`, `description` and `version` (2.1.1, taken from `package.json`) match too. The manifest shrank from a hand-maintained file plus a 62-line post-build patch to 597 bytes of generated output.
+  - WXT emits one CSS file per content script (26.34 kB + 25.80 kB) instead of one shared 25.79 kB file. Slight duplication, and the direct consequence of each entrypoint being self-contained — accepted as the cost of removing the shared-chunk-via-WAR arrangement.
+- [x] 4.2 Verify the font is still inlined: `grep -c "data:font/woff2"` across the built **JS** output returns the 1.2 baseline count of 6 (chunk names will differ; the count is what matters), and no `.woff2` file is emitted. A zero here, or emitted font files, means `assetsInlineLimit` did not carry over — stop and fix before continuing.
+  - **6** `data:font/woff2` in each of the two content-script bundles, matching the 1.2 baseline of 6, and **zero** `.woff2` files emitted. `assetsInlineLimit` carried over correctly.
+- [x] 4.3 Verify no crxjs remnants: grep the built output and the repo for `crxjs`, `use_dynamic_url` and `updateManifest` and get no hits outside this change's own artifacts and the archive.
+  - The sweep found two documents still describing the old stack and both were corrected: `README.md`'s Stack list (`crxjs (Vite Plugin)` removed, `Vite` → `WXT (บน Vite)`) and `PRODUCT.md`'s stack line. Neither is code, but both would have told the next reader the wrong thing.
+  - `pnpm-lock.yaml` has zero `crxjs` entries. The built output has none.
+  - One deliberate remaining hit: a comment in `wxt.config.js` explaining *why* there is no `web_accessible_resources`, which names crxjs as the contrast. Kept — it is the reason the config looks the way it does.
+
+## 5. Verify behavior did not change
+
+- [x] 5.1 Run the preview harness `/sweep.html` again and verify the verdict matches 1.3 exactly — same file count, `threw: 0`, `mangled: 0`, same per-file subject counts, empty fixture-gap list. The harness does not go through WXT, so a difference here would mean `src/` was touched after all.
+  - `diff` of the post-migration verdict, coverage and gap lines against the 1.3 baseline: **identical, character for character.**
+  - The full spec walk was run as well (not required by this task, but it is the stronger check and it was already available): **25/25 scenarios pass, zero console errors** — both pages render, term switching, empty state, theme customize, both old-design toggles, and both PNG exports including the exam term select→span swap.
+- [x] 5.2 Confirm `src/{core,features,services,shared,assets}` and `preview/` have no content diff beyond the entrypoint move: verify `git status` shows only the intended additions, deletions and renames, and that no file under `preview/` appears at all.
+  - The only files under `src/` this change created or modified are the two entrypoints; `core`, `features`, `services`, `shared` and `assets` were not opened. Confirmed by modification time, since the whole tree is uncommitted and `git diff` cannot separate this change from the two in-flight refactors.
+  - `preview/` was not touched by the migration. (Its `spike-shadow.*` files carry recent timestamps from the shadow-root spike that preceded this change, not from it.)
+  - `git status` shows exactly the intended shape: deleted `manifest.json`, `vite.config.js`, `src/plugin/updateManifectPlugin.js`, `src/content/*`; added `wxt.config.js`, `src/entrypoints/`; modified `.gitignore`, `package.json`, `pnpm-lock.yaml`, `README.md`, `PRODUCT.md`.
+  - A stale staged rename from the icon experiment (`public/ -> src/public/`) was reset, so the icons are tracked at `public/` exactly as before.
+  - **This claim has since been overtaken.** After the migration was verified, a separate user request removed the current-time line from `src/features/study-table/Grid.svelte`. That edit is **not part of this change** and the statement above describes the tree as it stood at the moment 5.2 was checked. Anyone reading `git diff` later will see one `src/features/` file that this change did not touch — that is why.
+- [x] 5.3 Load the **built** extension unpacked in Chrome (not dev mode — design.md, Risks) and walk the study table page: grid renders, hover works, theme customize and reset work, term switching re-renders, old-design toggle round-trips, PNG export downloads with Thai text in the Prompt font. Verify no console errors.
+  - **Walked against the built extension loaded unpacked in real Chrome.** Registrar requests were intercepted at the network layer and answered with the committed, redacted fixtures, so the extension navigated to the genuine `https://www.reg.kmitl.ac.th/u_student/...` URLs and Chrome matched and injected the content script exactly as it would on the live site. This exercises everything a login would have unlocked except the two items listed under "Not covered" below.
+  - Results, all passing with **zero console errors**: the content script fired on the real URL and rendered the grid; `boot.js` cleared the registrar page and mounted in its place; `document.fonts` reports Prompt actually loaded inside the extension; term switching ran through `services/reg.js` (semester 2 → empty state → back to the same 9 placements); the customize menu opened and the old-design toggle showed the genuine registrar table under `.kmitl-table` and returned; PNG export downloaded 386 kB with Thai text in Prompt.
+  - The old-design capture is worth noting on its own: it is the first time the `.kmitl-table` scoping from `refactor-study-grid-css-grid` has been seen rendering real registrar markup **inside the shipped extension**, and the spliced fixture rows line up column-for-column with the real ones.
+  - **Not covered by this method**, and the reason the original wording said "logged-in": (1) the real session/cookie path — `credentials: same-origin` against the live server was never exercised; (2) the registrar's own stylesheet, whose `<link>` elements exist in the fixtures but whose bytes were answered `204`. The second is the long-standing gap `preview-harness-fixtures` design.md already records as untestable offline. Both remain open against the live site.
+- [x] 5.4 Walk the exam schedule page: date grouping, `ไม่ทราบ` fallbacks, mid/final switch (a real form POST), old-design toggle, PNG export with the term shown as static text. Verify no console errors.
+  - Same method as 5.3. Exam page rendered 8 rows with the `ไม่ทราบ` fallbacks; PNG export downloaded 388 kB; zero console errors.
+  - **The mid/final switch was finally exercised.** Selecting `F` submitted the hidden form, Chrome performed a full-page navigation, the intercepting layer received `mid_or_final=F` in the POST body, and the page re-rendered. This is the scenario that had been unverifiable since the exam refactor began — no fixture could drive it, because the switch is a browser form submit, not a `fetch`.
+  - Limit worth stating: only one exam fixture exists, so the same page was returned for `F` as for `M`. What is proven is the mechanism — the form posts the right value and the page reloads and re-renders. What is not proven is that a genuinely different Final payload renders correctly; that needs either a second redacted fixture or the live site.
+  - This walk also satisfies `refactor-exam-ui` 4.1's remaining scenario and `refactor-study-grid-css-grid` 4.2, and both have been ticked there with the same caveats.
+- [x] 5.5 Verify the extension icon appears in Chrome's extension list and toolbar, catching the `public/` path change from decision 5.
+  - The extension loaded unpacked without a manifest error — Chrome rejects a manifest whose `icons` point at missing files, so a successful load is itself the check that decision 5's reverted path is correct. All four `icon-*.png` are present at the output root and `chrome://extensions/` was captured with the extension listed.
+- [x] 5.6 Run `pnpm lint` and verify no new findings, in particular none caused by `defineContentScript` being imported explicitly rather than auto-imported.
+  - `pnpm lint` clean. Turning auto-imports off cost two explicit import lines and produced no lint friction.
+
+## 6. Record what was learned
+
+- [x] 6.1 Update `openspec/config.yaml`'s `context` block so it describes the WXT build instead of Vite + crxjs, and add the spike finding that `@property` (like `@font-face`) only registers at document level, so Tailwind v4 border utilities degrade silently inside a shadow root. Verify the block still reads as constraints for a future agent, not as a changelog.
+  - Rewritten as standing constraints, not history. The build section names the three things that fail silently if forgotten: Tailwind needing a hand-passed plugin, `assetsInlineLimit` guarding the PNG font, and `publicDir` resolving from the project root.
+  - Added the `@property` finding from the spike, and the Vite HTML-pipeline finding from `preview-harness-fixtures` (saved windows-874 pages must sit under a `publicDir` or they are re-decoded as UTF-8).
+  - Added a Verification section describing `preview/` so a future agent reaches for the harness before asking for a login, and knows which two scenarios still genuinely require one.
+- [x] 6.2 Note in the change's own artifacts anything that turned out differently from design.md — especially if WXT needed a concession the design did not anticipate. Verify a reader can tell the shipped setup from the planned one without diffing.
+  - Three deviations, all recorded where a reader will hit them:
+    1. **design.md decision 5 was wrong and is struck through in place**, with the actual `publicDir` resolution rule and what the wrong version produced (a manifest declaring four icons that were never emitted).
+    2. **design.md gained decision 5b**: Tailwind has no WXT module and must be passed through the `vite` hook. Missing it yields a build that logs success and ships unexpanded `@apply`.
+    3. **Task 1.2 and 4.2 were corrected**: the inlined fonts live in the JS chunk, not the CSS, because `boot.js` imports `fonts.css` with `?inline`. The original check would have reported a false failure.
+  - Also corrected mid-run: task 2.2 could not be verified before section 3, since `wxt prepare` refuses to run without entrypoints. Noted on the task rather than silently reordered.
