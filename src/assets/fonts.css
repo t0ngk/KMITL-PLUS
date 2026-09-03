@@ -1,0 +1,12 @@
+/* Font Prompt bundle มากับ extension (MV3 ห้ามเรียก CDN ภายนอก)
+   ไฟล์นี้ถูก inject เป็น <style> inline ใน DOM ของหน้าเว็บโดย core/boot.js
+   — CSS ของ content script ที่ Chrome inject ผ่าน manifest ไม่โผล่ใน
+   document.styleSheets ทำให้ snapdom มองไม่เห็น @font-face ตอน export PNG
+   ใช้เฉพาะ weight/subset ที่ใช้จริง: 300 (ตัวเลขและ meta), 400 (เนื้อความ),
+   500 (ชื่อวิชา หัวข้อ ปุ่ม) — ไทย + ละติน */
+@import "@fontsource/prompt/thai-300.css";
+@import "@fontsource/prompt/latin-300.css";
+@import "@fontsource/prompt/thai-400.css";
+@import "@fontsource/prompt/latin-400.css";
+@import "@fontsource/prompt/thai-500.css";
+@import "@fontsource/prompt/latin-500.css";

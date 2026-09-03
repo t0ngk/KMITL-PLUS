@@ -1,25 +1,85 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* utility สำหรับ animation เข้า/ออก — ใช้ได้เฉพาะ element ที่อยู่ "นอกกรอบ capture"
+   ของ snapdom เท่านั้น (dock, popover) ห้ามข้ามเข้าไปใน sheet/grid/ตาราง
+   เพราะ snapdom อ่าน computed style ณ วินาทีนั้น บล็อกที่ fade ค้างครึ่งทาง
+   จะถูกอบลง PNG ที่ค่าครึ่งทางนั้น */
+@plugin "tailwindcss-animated";
+
+/* @font-face ของ Prompt อยู่ใน fonts.css — inject โดย core/boot.js
+   เป็น <style> ใน DOM เพื่อให้ snapdom เห็นตอน export PNG */
+
+@theme {
+  --font-prompt: "Prompt", sans-serif;
+
+  /* สีระบบ : ส้ม สจล. เป็นสีของสถานะเท่านั้น (เวลาปัจจุบัน วันนี้ error focus) */
+  --color-kmitl: #e35205;
+  --color-kmitl-soft: #fdf0e9;
+
+  /* หมึกสามชั้น + เส้นสองน้ำหนัก : ทั้งระบบไม่มีเส้นหรือสีเทาอื่นนอกจากนี้ */
+  --color-ink: #10151b;
+  --color-ink-2: #4a5560;
+  --color-ink-3: #5f6b78;
+  --color-line: #eaedf1;
+  --color-line-strong: #d7dce3;
+  --color-canvas: #f6f7f9;
+  --color-hover: #f2f4f7;
+}
 
 @layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-line);
+  }
+
   img {
     @apply inline-block;
+  }
+
+  /* หน้า reg ใส่ระยะขอบของมันเองไว้ที่ body — พอเราแทนที่เนื้อหาทั้งหน้า
+     ระยะนั้นกลายเป็นส่วนเกินที่ทำให้หน้า scroll ได้ทีละไม่กี่ px */
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* พื้นผิวที่เบราว์เซอร์วาดเองก็ต้องเป็นของระบบนี้ ไม่ใช่ค่า default ของ Chrome */
+  ::selection {
+    background-color: var(--color-kmitl-soft);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-kmitl);
+    outline-offset: 2px;
+  }
+
+  .kmitl-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
   }
 }
 
 * {
-  @apply font-prompt transition-all;
+  @apply font-prompt;
 }
 
-td {
-  @apply text-center border-l border-r font-prompt font-light;
+/* กฎ * ข้างบนเป็น unlayered specificity 0 มันจะเอื้อมไปถึง markup เดิมของ reg ด้วย
+   ต้องกันไว้ด้วย class (0,1,0) ไม่งั้นโหมด "แบบเดิม" ขึ้นเป็น Prompt ไม่ใช่ฟอนต์จริง
+   ใช้ stack เดียวกับที่ registrar.css ประกาศไว้ใน TD/BODY */
+.kmitl-table,
+.kmitl-table * {
+  font-family: "Microsoft Sans Serif", Arial, sans-serif;
 }
 
-th {
-  @apply text-center text-sm border;
+/* ตัวเลขเวลาต้องกว้างเท่ากันทุกตัว ไม่งั้นคอลัมน์เวลาสั่นตอนเปลี่ยนนาที */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
-tbody {
-  @apply border;
-}
+/* ไม่มีกฎจัดหน้าตารางเดิมที่นี่แล้ว — โหมด "แบบเดิม" เปิด registrar.css คืน
+   (shared/registrarStyles.js) กฎ TD ของ reg และ attribute ใน markup ของมันเอง
+   จัดการทั้งหมด การใส่ text-center/border/font-light ทับกลายเป็นตัวขวางความเหมือน */
