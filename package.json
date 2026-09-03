@@ -4,20 +4,36 @@
   "version": "2.1.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "lint": "NODE_OPTIONS=--experimental-strip-types oxlint",
+    "e2e": "playwright test",
+    "e2e:coverage": "node e2e/coverage.mjs",
+    "postinstall": "wxt prepare"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^1.0.14",
-    "@sveltejs/vite-plugin-svelte": "^2.4.1",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.24",
-    "svelte": "^3.59.1",
-    "tailwindcss": "^3.3.2",
-    "vite": "^4.3.9"
+    "@oxlint/plugins": "1.81.0",
+    "@playwright/test": "^1.62.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@wxt-dev/module-svelte": "^2.0.5",
+    "bits-ui": "^2.19.0",
+    "clsx": "^2.1.1",
+    "oxlint": "1.81.0",
+    "svelte": "^5.57.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "tailwindcss-animated": "^2.1.0",
+    "vite": "^8.2.2",
+    "wxt": "^0.21.4"
   },
   "dependencies": {
-    "html-to-image": "^1.11.11"
+    "@fontsource/prompt": "^5.3.0",
+    "@zumer/snapdom": "^2.24.15",
+    "date-fns": "^4.4.0",
+    "remeda": "^2.45.0"
   }
 }

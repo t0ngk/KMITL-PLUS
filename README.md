@@ -23,6 +23,5 @@ Open Souce Project สำหรับ Chrome Extension ซึ่ง Extension �
 ## Stack
 
 1. Svelte
-2. Vite
+2. WXT (บน Vite)
 3. Tailwind
-4. crxjs (Vite Plugin)

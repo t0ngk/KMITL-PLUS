@@ -10,7 +10,17 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+# output ของ wxt : .output คือ extension ที่ build แล้ว, .wxt คือ type ที่ generate
+.output
+.wxt
 *.local
+
+# corpus ของ preview harness = หน้า reg จริงทุกเทอม ยังไม่ถูก redact
+# ห้าม commit เด็ดขาด — ข้อมูลส่วนตัวที่หลุดเข้า history ลบทีหลังไม่ได้
+# ที่ commit ได้คือ fixtures ที่ redact แล้วเท่านั้น
+# (อยู่ใต้ public/ เพราะ vite แปลง .html ที่อื่นจน byte windows-874 พัง)
+preview/public/corpus/
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +32,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ผลลัพธ์ชั่วคราวของชุด e2e
+test-results/
+playwright-report/
+e2e/.chrome-profile*/
+
+# ของเฉพาะเครื่อง ไม่ใช่ของโปรเจกต์
+# settings.local.json = hook ที่เปิดไว้เอง, hook.cache.json = cache ที่เก็บ path
+# เต็ม ๆ ของเครื่องนี้กับ session id ซึ่งไม่มีความหมายกับใครอื่น
+# เครื่องมือของผู้ช่วย ไม่ใช่โค้ดโปรเจกต์ — ลงใหม่ได้ และคนที่ clone ไปทำ extension
+# ไม่ต้องใช้ (ส่วน openspec/ เก็บไว้ เพราะเป็นสเปกกับประวัติการตัดสินใจของโปรเจกต์เอง)
+.claude/
+.impeccable/hook.cache.json
+.impeccable/build/
