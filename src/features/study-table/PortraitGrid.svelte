@@ -33,8 +33,6 @@
   // แถวที่ 1 คือชื่อวัน ช่องเวลาช่องแรกจึงเริ่มที่เส้นกริดที่ 2
   const ROW_OFFSET = 2;
   const HOUR_LABEL_COLUMN = "2.25rem";
-  // วันที่ไม่มีเรียนแต่อยู่กลางสัปดาห์ : คงไว้ให้ลำดับวันไม่เพี้ยน แต่บีบให้แคบ
-  const EMPTY_DAY_FRACTION = 0.32;
 
   // 13px x leading-tight (1.25) = 16.25 — ปัดขึ้นกัน off-by-one ที่ทำให้บรรทัด
   // สุดท้ายโดนตัดครึ่ง
@@ -62,13 +60,9 @@
     })),
   );
 
+  // ทุกคอลัมน์กว้างเท่ากัน — ขอบเขตที่ส่งมามีแต่วันที่ต้องแสดงอยู่แล้ว
   const columns = $derived(
-    [
-      HOUR_LABEL_COLUMN,
-      ...days.map(
-        (day) => `minmax(0, ${day.used ? 1 : EMPTY_DAY_FRACTION}fr)`,
-      ),
-    ].join(" "),
+    [HOUR_LABEL_COLUMN, ...days.map(() => "minmax(0, 1fr)")].join(" "),
   );
 </script>
 

@@ -1,5 +1,11 @@
 import fs from "node:fs/promises";
 
+import {
+  BOTTOM_BAND,
+  CANVAS_HEIGHT,
+  TOP_BAND,
+} from "../src/shared/exportCanvas.js";
+
 // อ่านสีจริงในไฟล์ PNG ที่ดาวน์โหลดมา
 //
 // ไม่มี decoder ฝั่ง node ในโปรเจกต์นี้ และไม่อยากเพิ่มแค่เรื่องนี้ จึงส่ง byte
@@ -51,11 +57,15 @@ export async function pngColors(page, filePath, { withSize = false } = {}) {
  * ใช้ตรวจว่าแถบที่เว้นไว้ "ว่างจริง" — ว่างแปลว่าทั้งแถบเป็นสีเดียว ไม่ใช่แค่
  * ดูเหมือนว่างตอนมองภาพ
  */
-export async function pngBands(page, filePath, { top = 0.2, bottom = 0.14 } = {}) {
+export async function pngBands(page, filePath, { top, bottom } = {}) {
+  // สัดส่วนแถบมาจากค่าคงที่ของโค้ดโดยตรง เทสต์จะได้ตามไปเองเมื่อแถบถูกปรับ
+  // (เคยฝังไว้เป็น 0.2/0.14 แล้วพอย้ายตารางลง เทสต์ไปสุ่มสีในตารางแทนที่จะเป็นแถบ)
+  const topRatio = top ?? (TOP_BAND / CANVAS_HEIGHT) * 0.9;
+  const bottomRatio = bottom ?? (BOTTOM_BAND / CANVAS_HEIGHT) * 0.9;
   const base64 = (await fs.readFile(filePath)).toString("base64");
 
   return page.evaluate(
-    async ({ data, topRatio, bottomRatio }) => {
+    async ({ data, topPart, bottomPart }) => {
       const image = new Image();
       await new Promise((resolve, reject) => {
         image.onload = resolve;
@@ -83,13 +93,13 @@ export async function pngBands(page, filePath, { top = 0.2, bottom = 0.14 } = {}
         width: canvas.width,
         height: canvas.height,
         ratio: canvas.width / canvas.height,
-        topColors: distinct(0, Math.floor(canvas.height * topRatio)),
+        topColors: distinct(0, Math.floor(canvas.height * topPart)),
         bottomColors: distinct(
-          canvas.height - Math.floor(canvas.height * bottomRatio),
-          Math.floor(canvas.height * bottomRatio),
+          canvas.height - Math.floor(canvas.height * bottomPart),
+          Math.floor(canvas.height * bottomPart),
         ),
       };
     },
-    { data: base64, topRatio: top, bottomRatio: bottom },
+    { data: base64, topPart: topRatio, bottomPart: bottomRatio },
   );
 }

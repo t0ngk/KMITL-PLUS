@@ -8,6 +8,10 @@
 export const CANVAS_WIDTH = 540;
 export const CANVAS_HEIGHT = 1260;
 
-// แถบบน 22% / ล่าง 16% : ที่ที่นาฬิกาบน lock screen กับ dock ทับ
-export const TOP_BAND = 277;
-export const BOTTOM_BAND = 202;
+// แถบบน 30% / ล่าง 8% : ที่ที่นาฬิกาบน lock screen กับปุ่มล่างทับ
+//
+// เดิม 22%/16% แล้วดูจากภาพที่ export จากบัญชีจริง ตารางอยู่สูงเกินไป —
+// นาฬิกากินพื้นที่บนมากกว่าที่เผื่อไว้ ส่วนล่างมีแค่ปุ่มไฟฉาย/กล้องกับแถบ swipe
+// ความสูงของตารางเท่าเดิม (781) แค่ย้ายลงมา 101px
+export const TOP_BAND = 378;
+export const BOTTOM_BAND = 101;

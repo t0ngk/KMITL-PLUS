@@ -13,14 +13,16 @@
   const accent = $derived(blockColors(color));
 </script>
 
-<header class="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">
+<!-- ป้ายอยู่ฝั่งขวา : ตาข้างซ้ายมีคอลัมน์เวลาอยู่แล้ว ป้ายชิดขวาทำให้แถวหัวตาราง
+     ไม่เหลือช่องว่างยาว ๆ กลางแถว -->
+<header class="flex items-center justify-end gap-3 border-b border-line px-4 py-2.5">
+  {#if note}
+    <p class="text-[11px] text-ink-3">{note}</p>
+  {/if}
   <p
     class="tnum rounded px-2 py-0.5 text-[11px] font-medium"
     style="background-color: {accent.tint}; color: {accent.ink};"
   >
     {term}
   </p>
-  {#if note}
-    <p class="text-[11px] text-ink-3">{note}</p>
-  {/if}
 </header>

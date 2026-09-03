@@ -25,15 +25,11 @@ const minutesOf = (time) => {
 };
 
 /** ขอบเขตเต็ม : ทั้งสัปดาห์ 08:00-20:00 ไม่ว่าภาคเรียนนั้นจะเรียนแค่ไหน */
-export function fullExtent(schedule = []) {
-  const used = new Set(schedule.map((item) => item.dayIndex));
+export function fullExtent() {
   return {
     startHour: FULL_START_HOUR,
     hourCount: FULL_HOUR_COUNT,
-    days: thaiDays.map((_, dayIndex) => ({
-      dayIndex,
-      used: used.has(dayIndex),
-    })),
+    days: thaiDays.map((_, dayIndex) => ({ dayIndex })),
   };
 }
 
@@ -41,13 +37,17 @@ export function fullExtent(schedule = []) {
  * ขอบเขตเท่าที่ภาคเรียนนี้ใช้จริง
  *
  * ชั่วโมง : ตัดหัวและท้ายที่ไม่มีคาบแตะ (ไม่มีเทอมไหนใน corpus เริ่มก่อน 09:00)
- * วัน     : ตัดวันว่างที่ต้นและท้ายสัปดาห์ แต่ **คงวันว่างที่อยู่ตรงกลางไว้**
- *           เพราะคนอ่านรูปทรงก่อนอ่านป้าย — ยุบวันอังคารที่ว่างทิ้งแล้ว จ.พ.พฤ.ศ.
- *           จะอ่านเป็น "เรียนสี่วันติด" ซึ่งไม่จริง
+ * วัน     : ตัด **ทุกวันที่ไม่มีเรียน** รวมวันที่อยู่กลางสัปดาห์
+ *
+ * เดิมคงวันว่างกลางสัปดาห์ไว้แบบแคบ ด้วยเหตุผลว่ายุบทิ้งแล้ว จ.พ.ศ. จะอ่านเป็น
+ * "เรียนสามวันติด" — แต่พอเห็นภาพจากบัญชีจริงแล้วเหตุผลนั้นไม่ยืน :
+ * ชื่อวันอยู่ในหัวคอลัมน์ทุกคอลัมน์อยู่แล้ว คนอ่านเห็น จ. อ. พ. ศ. ก็รู้ว่าข้ามพฤหัส
+ * ส่วนคอลัมน์แคบ ๆ ที่ว่างเปล่ากลับดูเหมือนเส้นขีดมากกว่าวัน
+ * (กลับคำ wallpaper-export decision 6 หลังเห็นของจริง)
  */
 export function fitExtent(schedule = []) {
   if (schedule.length === 0) {
-    return fullExtent(schedule);
+    return fullExtent();
   }
 
   const startHour = Math.floor(
@@ -58,16 +58,13 @@ export function fitExtent(schedule = []) {
   );
 
   const used = new Set(schedule.map((item) => item.dayIndex));
-  const usedList = [...used].sort((a, b) => a - b);
-  const first = usedList[0];
-  const last = usedList.at(-1);
 
   return {
     startHour,
     hourCount: Math.max(1, endHour - startHour),
     days: thaiDays
-      .map((_, dayIndex) => ({ dayIndex, used: used.has(dayIndex) }))
-      .filter((day) => day.dayIndex >= first && day.dayIndex <= last),
+      .map((_, dayIndex) => ({ dayIndex }))
+      .filter((day) => used.has(day.dayIndex)),
   };
 }
 

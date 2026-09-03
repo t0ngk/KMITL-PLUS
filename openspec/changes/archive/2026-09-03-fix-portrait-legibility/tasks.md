@@ -44,7 +44,7 @@ Every scenario in the delta needs a test whose title matches it verbatim in `e2e
 - [x] 5.4 Negative control: put the block text back to horizontal, confirm the readability tests fail and the rest stay green. Restore.
 - [x] 5.5 Walk every remaining `image-export` scenario and both render capabilities, and verify nothing moved.
 - [x] 5.6 Run `pnpm e2e` (both projects), `pnpm e2e:coverage`, the corpus sweep, `pnpm lint` and `pnpm build`.
-- [ ] 5.7 **Export a portrait image from the live registrar and look at it.** Every measurement here comes from a fixture; the finding that started this change came from a real account, and only the same route can confirm it is fixed. Verify this task is not marked complete on fixture evidence alone.
+- [x] 5.7 **Export a portrait image from the live registrar and look at it.** Every measurement here comes from a fixture; the finding that started this change came from a real account, and only the same route can confirm it is fixed. Verify this task is not marked complete on fixture evidence alone.
 
 ## 6. Record
 
@@ -86,3 +86,29 @@ words` และ `Room and section survive` ตกทั้งคู่ ส่�
 
 **ยังค้าง : task 5.7** ต้อง export จากหน้า reg จริงแล้วดูด้วยตา ทุกตัวเลขในนี้มาจาก
 fixture แต่ปัญหาที่ทำให้เกิด change นี้มาจากบัญชีจริง
+
+## 7. สิ่งที่เจอจากภาพจริง (task 5.7)
+
+เจ้าของโปรเจกต์ export จากบัญชีจริง (2564/2) แล้วชี้สามจุด ทั้งหมดแก้ในรอบเดียวกัน
+
+- [x] 7.1 ป้ายภาคเรียนย้ายไปชิดขวา — เดิมอยู่มุมซ้ายแล้วเหลือช่องว่างยาวกลางแถว
+      และตาข้างซ้ายมีคอลัมน์เวลาอยู่แล้ว
+- [x] 7.2 **วันที่ไม่มีเรียนถูกตัดออกจริงเมื่อเลือก "ตัดวันและเวลาที่ไม่มีเรียน"**
+      กลับคำ `wallpaper-export` decision 6 ที่คงวันว่างกลางสัปดาห์ไว้แบบแคบ
+      เหตุผลเดิมคือกลัวว่า จ.พ.ศ. จะอ่านเป็นเรียนสามวันติด — พอเห็นของจริงแล้ว
+      เหตุผลนั้นไม่ยืน เพราะ**ชื่อวันอยู่บนหัวคอลัมน์ทุกคอลัมน์อยู่แล้ว** คนอ่านเห็น
+      จ. พ. พฤ. ศ. ก็รู้ว่าข้ามอังคาร ส่วนคอลัมน์แคบที่ว่างเปล่ากลับดูเหมือนเส้นขีด
+      ผลพลอยได้ : คอลัมน์ที่เหลือกว้างขึ้นจาก 108.8 เป็น 117.5px
+      แก้ scenario `An unused day inside the week` ในสเปกตามไปด้วย
+- [x] 7.3 เลื่อนตารางลง — แถบบน 22% -> 30% แถบล่าง 16% -> 8%
+      **ความสูงของตารางเท่าเดิม (781 CSS) แค่ย้ายลง 101px** ไม่ได้เล็กลง
+      นาฬิกาบน lock screen กินที่บนมากกว่าที่เผื่อไว้ ส่วนล่างมีแค่ปุ่มไฟฉาย/กล้อง
+- [x] 7.4 `pngBands` ในเทสต์อ่านสัดส่วนแถบจาก `shared/exportCanvas.js` แทนที่จะฝัง
+      0.2/0.14 ไว้ — ตอนย้ายแถบ เทสต์เดิมไปสุ่มสีในตารางแทนที่จะเป็นแถบ แล้วตก
+      ด้วยเหตุผลที่ไม่เกี่ยวกับสิ่งที่มันตรวจ
+
+```
+   pnpm e2e --project=preview     68 ผ่าน
+   pnpm e2e --project=extension   14 ผ่าน
+   lint สะอาด · build 1.28 MB
+```

@@ -65,6 +65,35 @@ Both views SHALL offer a portrait export at a single fixed aspect ratio that is 
 - **WHEN** a class is too short for its name to fit even along the block
 - **THEN** what does fit is shown and the rest is cut, rather than the block being left blank or the text spilling outside it
 
+### Requirement: The student chooses what the image reserves and how much it covers
+
+The portrait export SHALL offer two independent choices: whether to leave the areas a lock screen occupies blank, and whether to draw the whole week or only the part of it the term uses. Both SHALL be available in every combination.
+
+#### Scenario: Reserved bands
+
+- **WHEN** the student asks for the reserved-band variant
+- **THEN** the top and bottom of the image are left blank so the clock and the dock do not overlap the grid, and the grid occupies the band between them
+
+#### Scenario: Full canvas
+
+- **WHEN** the student asks for the full-canvas variant
+- **THEN** the grid fills the image with no reserved bands
+
+#### Scenario: Content-fitted extent
+
+- **WHEN** the student asks for the content-fitted variant and the term uses neither the first hour nor the weekend
+- **THEN** those hours and days are absent from the image and the remaining columns and rows are correspondingly larger
+
+#### Scenario: An unused day inside the week
+
+- **WHEN** the content-fitted variant is chosen and a day between two used days has no classes
+- **THEN** that day is absent too, and the day names on the remaining columns are what tells the student which days were skipped
+
+#### Scenario: Extent does not apply to the exam schedule
+
+- **WHEN** the student opens the format menu on the exam schedule
+- **THEN** only the reserved-band choice is offered, because an exam list contains only the entries that exist
+
 ## ADDED Requirements
 
 ### Requirement: The portrait export carries no identifying details

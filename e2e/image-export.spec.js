@@ -226,7 +226,8 @@ test("Content-fitted extent", async ({ openApp }) => {
   // เทอมนี้เรียน 09:00-18:00 จ. _ พ. พฤ. ศ. -> ไม่มี 08:00 ไม่มีเสาร์อาทิตย์
   expect(grid.hours[0]).toBe("09:00");
   expect(grid.hours.at(-1)).toBe("17:00");
-  expect(grid.columns.split(" ")).toHaveLength(6);
+  // คอลัมน์เวลา + 4 วันที่มีเรียน (อังคารว่าง ถูกตัดออกไปด้วย)
+  expect(grid.columns.split(" ")).toHaveLength(5);
 });
 
 test("An unused day inside the week", async ({ openApp }) => {
@@ -248,12 +249,12 @@ test("An unused day inside the week", async ({ openApp }) => {
       .map((node) => node.textContent.trim()),
   );
 
-  // อังคารว่างแต่ยังอยู่ ไม่ถูกยุบทิ้ง — และแคบกว่าวันที่มีเรียนอย่างชัดเจน
-  expect(days).toContain("อ.");
+  // อังคารว่าง ถูกตัดออกไปแล้ว — ที่บอกว่าข้ามวันไหนคือชื่อวันบนคอลัมน์ที่เหลือ
+  expect(days).not.toContain("อ.");
+  expect(days).toEqual(["จ.", "พ.", "พฤ.", "ศ."]);
+  // และคอลัมน์ที่เหลือกว้างเท่ากันหมด ไม่มีคอลัมน์แคบ ๆ ที่ว่างเปล่าอีก
   const dayColumns = columns.slice(1);
-  const narrow = Math.min(...dayColumns);
-  const wide = Math.max(...dayColumns);
-  expect(narrow).toBeLessThan(wide / 2);
+  expect(new Set(dayColumns).size).toBe(1);
 });
 
 test("Extent does not apply to the exam schedule", async ({ openApp }) => {
